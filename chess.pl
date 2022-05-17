@@ -78,24 +78,51 @@ king_fwd(X,Y) :- forward(X,Y); fwd_que(X,Y); fwd_kng(X,Y).
 king_bck(X,Y) :- backward(X,Y); bck_que(X,Y); bck_kng(X,Y).
 king_lat(X,Y) :- queen_side(X,Y); king_side(X,Y).
 
-king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
+make_long(F, X, Y, []) :- call(F, X, Y).
+make_long(F, X, Y, [Z|Blocks]) :- call(F, X, Z), make_long(F, Z, Y, Blocks).
 
-forward8(X, Y) :- forward(X, Y); forward(X, Z), forward8(Z, Y).
-backward8(X, Y) :- backward(X, Y); backward(X, Z), backward8(Z, Y).
-queen_side8(X, Y) :- queen_side(X, Y); queen_side(X, Z), queen_side8(Z, Y).
-king_side8(X, Y) :- king_side(X, Y); king_side(X, Z), king_side8(Z, Y).
+make_short(F, X, Y, []) :- call(F, X, Y).
 
 
-fwd_que8(X, Y) :- fwd_que(X, Y); fwd_que(X, Z), fwd_que8(Z, Y).
-fwd_kng8(X, Y) :- fwd_kng(X, Y); fwd_kng(X, Z), fwd_kng8(Z, Y).
-bck_que8(X, Y) :- bck_que(X, Y); bck_que(X, Z), bck_que8(Z, Y).
-bck_kng8(X, Y) :- bck_kng(X, Y); bck_kng(X, Z), bck_kng8(Z, Y).
+forward_long(X, Y, Interpose) :- make_long(forward, X, Y, Interpose).
+backward_long(X, Y, Interpose) :- make_long(backward, X, Y, Interpose).
+queen_side_long(X, Y, Interpose) :- make_long(queen_side, X, Y, Interpose).
+king_side_long(X, Y, Interpose) :- make_long(king_side, X, Y, Interpose).
+
+fwd_que_long(X, Y, Interpose) :- make_long(fwd_que, X, Y, Interpose).
 
 
-rook(X, Y) :- forward8(X, Y); backward8(X, Y); queen_side8(X, Y); king_side8(X, Y).
-bishop(X, Y) :- fwd_que8(X, Y); fwd_kng8(X, Y); bck_que8(X, Y); bck_kng8(X, Y).
-queen(X, Y) :- rook(X, Y); bishop(X, Y).
+forward_short(X, Y, Interpose) :- make_short(forward, X, Y, Interpose).
+backward_short(X, Y, Interpose) :- make_short(backward, X, Y, Interpose).
+queen_side_short(X, Y, Interpose) :- make_short(queen_side, X, Y, Interpose).
+king_side_short(X, Y, Interpose) :- make_short(king_side, X, Y, Interpose).
+
+fwd_que_short(X, Y, Interpose) :- make_short(fwd_que, X, Y, Interpose).
 
 
-hello(X, Blocks, Y) :- findall(a-4, king_fwd(X, Blocks), Y).
+rook_long(X, Y, Interpose) :- forward_long(X, Y, Interpose); backward_long(X, Y, Interpose); queen_side_long(X, Y, Interpose); king_side_long(X, Y, Interpose).
+
+rook_short(X, Y, Interpose) :- forward_short(X, Y, Interpose); backward_short(X, Y, Interpose); queen_side_short(X, Y, Interpose); king_side_short(X, Y, Interpose).
+
+king_short(X, Y, Interpose) :- rook_short(X, Y, Interpose).
+
+interpose_route(R1, R2, X, Y, IFrom, IAt) :- call(R1, X, Y, Interpose), member(IAt, Interpose), call(R2, IFrom, IAt, _).
+
+flee_safe(K) :- king_short(K, Y, _), \+ rook_long(_, Y, _).
+
+
+:- dynamic(k/1).
+:- dynamic(p/1).
+:- dynamic(r/1).
+:- dynamic(b/1).
+:- dynamic(kW/1).
+:- dynamic(pW/1).
+:- dynamic(rW/1).
+:- dynamic(bW/1).
+
+black(X) :- k(X);p(X);r(X);b(X).
+white(X) :- kW(X);pW(X);rW(X);bW(X).
+
+piece(X) :- black(X);white(X).
+
 
