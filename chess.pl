@@ -53,6 +53,11 @@ corner(a-8).
 corner(h-1).
 corner(h-8).
 
+backrank(_-1).
+promoterank(_-8).
+pawnrank(_-2).
+
+
 forward(X-Y,X-Y_) :- up(Y-Y_).
 backward(X-Y,X-Y_) :- down(Y-Y_).
 queen_side(X-Y,X_-Y) :- left(X-X_).
@@ -74,4 +79,23 @@ king_bck(X,Y) :- backward(X,Y); bck_que(X,Y); bck_kng(X,Y).
 king_lat(X,Y) :- queen_side(X,Y); king_side(X,Y).
 
 king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
+
+forward8(X, Y) :- forward(X, Y); forward(X, Z), forward8(Z, Y).
+backward8(X, Y) :- backward(X, Y); backward(X, Z), backward8(Z, Y).
+queen_side8(X, Y) :- queen_side(X, Y); queen_side(X, Z), queen_side8(Z, Y).
+king_side8(X, Y) :- king_side(X, Y); king_side(X, Z), king_side8(Z, Y).
+
+
+fwd_que8(X, Y) :- fwd_que(X, Y); fwd_que(X, Z), fwd_que8(Z, Y).
+fwd_kng8(X, Y) :- fwd_kng(X, Y); fwd_kng(X, Z), fwd_kng8(Z, Y).
+bck_que8(X, Y) :- bck_que(X, Y); bck_que(X, Z), bck_que8(Z, Y).
+bck_kng8(X, Y) :- bck_kng(X, Y); bck_kng(X, Z), bck_kng8(Z, Y).
+
+
+rook(X, Y) :- forward8(X, Y); backward8(X, Y); queen_side8(X, Y); king_side8(X, Y).
+bishop(X, Y) :- fwd_que8(X, Y); fwd_kng8(X, Y); bck_que8(X, Y); bck_kng8(X, Y).
+queen(X, Y) :- rook(X, Y); bishop(X, Y).
+
+
+hello(X, Blocks, Y) :- findall(a-4, king_fwd(X, Blocks), Y).
 
