@@ -111,6 +111,7 @@ queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
 role(k).
 role(r).
 role(b).
+role(q).
 
 color(w).
 color(b).
@@ -125,21 +126,18 @@ piese_role(X, Y) :- X=_-Y-_.
 piese_color(X, Y) :- X=Y-_-_.
 
 
-pos_(a-1).
-pos_(a-2).
-pos_(a-3).
-
-
-
 move(b-r-X, Y, I):- rook(X, Y, I).
 move(w-r-X, Y, I):- rook(X, Y, I).
 move(b-k-X, Y, _):- king(X, Y).
 move(b-b-X, Y, I):- bishop(X, Y, I).
+move(w-q-X, Y, I):- queen(X, Y, I).
 
 
-situation(R, B, K, R2) :- move(b-r-R2, N, _), move(w-r-R, K, IR), member(N, IR), move(b-k-K, _, _), move(b-b-B, R, _).
+% situation(R, B, K, R2) :- move(b-r-R2, N, _), move(w-r-R, K, IR), member(N, IR), move(b-k-K, _, _), move(b-b-B, R, _).
 
 
+
+situation(Q, K, R, MK) :- (not_move(w-q-Q, MK), not_move(w-r-R, MK)), move(b-k-K, MK, []).
 
 
 board(Ps) :-
