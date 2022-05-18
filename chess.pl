@@ -108,6 +108,7 @@ rook(X, Y, N) :- forward(X, Y, N); backward(X, Y, N); queen_side(X, Y, N); king_
 king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
 queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
 
+
 role(k).
 role(r).
 role(b).
@@ -133,11 +134,38 @@ move(b-b-X, Y, I):- bishop(X, Y, I).
 move(w-q-X, Y, I):- queen(X, Y, I).
 
 
+
+
+
+
+
+
+/* Negating enumerated facts
+
+k(1-2).
+k(1-3).
+k(2-3).
+k(3-4).
+
+f(1).
+f(2).
+f(3).
+f(4).
+
+s(X, Y) :- k(X-Y).
+
+hello :- f(X), \+ s(X, 2).
+
+
+*/
+
 % situation(R, B, K, R2) :- move(b-r-R2, N, _), move(w-r-R, K, IR), member(N, IR), move(b-k-K, _, _), move(b-b-B, R, _).
 
 
 
-situation(Q, K, R, MK) :- (not_move(w-q-Q, MK), not_move(w-r-R, MK)), move(b-k-K, MK, []).
+situation(Q, K, R, MK) :- pos(MK), (pos(Q), \+ move(w-q-Q, MK, _), pos(R), \+ move(w-r-R, MK, _)), move(b-k-K, MK, []).
+
+stalemate(Q, K, MK) :- pos(Q), pos(K), pos(MK), move(w-q-Q, K, _), \+ (move(b-k-K, MK, []), \+ move(w-q-Q, MK, _)), move(b-k-K, MK, []).
 
 
 board(Ps) :-
