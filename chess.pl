@@ -11,6 +11,10 @@ right(g-h).
 left(X-Y) :- right(Y-X).
 leftright(X-Y) :- left(X-Y); right(X-Y).
 
+
+right2(X-Y) :- right(X-Z), right(Z-Y).
+left2(X-Y) :- right2(Y-X).
+
 righter(X-Y, []) :- right(X-Y).
 righter(X-Y, [Z|Rest]) :- right(X-Z), righter(Z-Y, Rest).
 
@@ -42,6 +46,8 @@ up(7-8).
 down(X-Y) :- up(Y-X).
 updown(X-Y) :- up(X-Y);down(X-Y).
 
+up2(X-Y) :- up(X-Z), up(Z-Y).
+down2(X-Y) :- up2(Y-X).
 
 upper(X-Y, []) :- up(X-Y).
 upper(X-Y, [Z|Rest]) :- up(X-Z), upper(Z-Y, Rest).
@@ -103,6 +109,23 @@ king_fwd(X,Y) :- forward(X,Y, []); fwd_que(X,Y, []); fwd_kng(X,Y, []).
 king_bck(X,Y) :- backward(X,Y, []); bck_que(X,Y, []); bck_kng(X,Y, []).
 king_lat(X,Y) :- queen_side(X,Y, []); king_side(X,Y,[]).
 
+fwd2_que(X-Y, X_-Y_) :- up2(Y-Y_), left(X-X_).
+fwd2_kng(X-Y, X_-Y_) :- up2(Y-Y_), right(X-X_).
+
+fwd_que2(X-Y, X_-Y_) :- up(Y-Y_), left2(X-X_).
+fwd_kng2(X-Y, X_-Y_) :- up(Y-Y_), right2(X-X_).
+
+
+bck2_que(X-Y, X_-Y_) :- down2(Y-Y_), left(X-X_).
+bck2_kng(X-Y, X_-Y_) :- down2(Y-Y_), right(X-X_).
+
+bck_que2(X-Y, X_-Y_) :- down(Y-Y_), left2(X-X_).
+bck_kng2(X-Y, X_-Y_) :- down(Y-Y_), right2(X-X_).
+
+
+knight(X, Y) :- fwd2_que(X, Y); fwd2_kng(X, Y); fwd_que2(X, Y); fwd_kng2(X, Y); 
+bck2_que(X, Y); bck2_kng(X, Y); bck_que2(X, Y); bck_kng2(X, Y).
+
 bishop(X, Y, N) :- fwd_que(X, Y, N); fwd_kng(X, Y, N); bck_que(X, Y, N); bck_kng(X, Y, N).
 rook(X, Y, N) :- forward(X, Y, N); backward(X, Y, N); queen_side(X, Y, N); king_side(X, Y, N).
 king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
@@ -113,6 +136,8 @@ role(k).
 role(r).
 role(b).
 role(q).
+role(p).
+role(n).
 
 color(w).
 color(b).
@@ -131,13 +156,30 @@ move(b-r-X, Y, I):- rook(X, Y, I).
 move(w-r-X, Y, I):- rook(X, Y, I).
 move(b-k-X, Y, _):- king(X, Y).
 move(b-b-X, Y, I):- bishop(X, Y, I).
+move(w-b-X, Y, I):- bishop(X, Y, I).
 move(w-q-X, Y, I):- queen(X, Y, I).
+move(w-n-X, Y, _) :- knight(X, Y).
 
 
 % check for the non-existence of non-existence  
 % https://stackoverflow.com/a/50648745/3994250
 hello(K, Q):- move(b-k-K, Q, []),
 \+ (move(b-k-K, Flee, []), \+ Flee=Q, \+ move(w-q-Q, Flee, _)).
+
+
+stale(K, Q) :- \+ K=Q, \+ move(w-q-Q, K, _),
+\+ (move(b-k-K, Flee, []), \+ move(w-q-Q, Flee, _)).
+
+
+q_mate(K, Q, O) :- move(b-k-K, Q, []),
+\+ (move(b-k-K, Flee, []), \+ Flee=Q, \+ move(w-q-Q, Flee, _)),
+move(w-b-O, Q, _).
+
+
+smother(K, N, B1, B2, B3) :- move(w-n-N, K, []),
+\+ (move(b-k-K, Flee, []), \+ Flee = B1, \+ Flee = B2 , \+ Flee = B3).
+
+
 
 
 board(Ps) :-
