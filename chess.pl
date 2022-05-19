@@ -81,9 +81,15 @@ corner(a-8).
 corner(h-1).
 corner(h-8).
 
-back_rank(_-1).
-promote_rank(_-8).
-pawn_rank(_-2).
+white_base(_-1).
+black_base(_-8).
+white_home(_-2).
+white_home1(_-3).
+white_home2(_-4).
+black_home(_-7).
+black_home1(_-6).
+black_home2(_-5).
+
 
 zip_pos([], [], []).
 zip_pos([X|Xs], [Y|Ys], [X-Y|Rest]) :- zip_pos(Xs, Ys, Rest).
@@ -122,15 +128,27 @@ bck2_kng(X-Y, X_-Y_) :- down2(Y-Y_), right(X-X_).
 bck_que2(X-Y, X_-Y_) :- down(Y-Y_), left2(X-X_).
 bck_kng2(X-Y, X_-Y_) :- down(Y-Y_), right2(X-X_).
 
+fwd2(X, Y, N) :- forward(X, Y, N), length(N, 1).
+bck2(X, Y, N) :- backward(X, Y, N), length(N, 1).
+
 
 knight(X, Y) :- fwd2_que(X, Y); fwd2_kng(X, Y); fwd_que2(X, Y); fwd_kng2(X, Y); 
-bck2_que(X, Y); bck2_kng(X, Y); bck_que2(X, Y); bck_kng2(X, Y).
+                bck2_que(X, Y); bck2_kng(X, Y); bck_que2(X, Y); bck_kng2(X, Y).
 
 bishop(X, Y, N) :- fwd_que(X, Y, N); fwd_kng(X, Y, N); bck_que(X, Y, N); bck_kng(X, Y, N).
 rook(X, Y, N) :- forward(X, Y, N); backward(X, Y, N); queen_side(X, Y, N); king_side(X, Y, N).
 king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
 queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
 
+white_push(X, Y, N) :- \+ white_base(X), (white_home(X), fwd2(X, Y, N); forward(X, Y, [])).
+white_capture(X, Y) :- \+ white_base(X), (fwd_kng(X, Y, []); fwd_que(X, Y, [])).
+white_en_passant(X, Y, C) :- black_home2(X), white_capture(X, Y), backward(Y, C, []).
+white_promote(X) :- black_home(X).
+
+black_push(X, Y, N) :- \+ black_base(X), (black_home(X), bck2(X, Y, N); backward(X, Y, [])).
+black_capture(X, Y) :- \+ black_base(X), (bck_kng(X, Y, []); bck_que(X, Y, [])).
+black_en_passant(X, Y, C) :- white_home2(X), black_capture(X, Y), forward(Y, C, []).
+black_promote(X) :- white_home(X).
 
 role(k).
 role(r).
@@ -144,40 +162,88 @@ color(b).
 
 piece(X-Y) :- color(X), role(Y).
 
-% piese(X-Y) :- piece(X), pos_(Y).
 piese(X-Y) :- piece(X), pos(Y).
 
 piese_pos(X, Y) :- X=_-_-Y.
 piese_role(X, Y) :- X=_-Y-_.
 piese_color(X, Y) :- X=Y-_-_.
 
+:- dynamic drop/1.
+:- dynamic start/1.
 
-move(b-r-X, Y, I):- rook(X, Y, I).
-move(w-r-X, Y, I):- rook(X, Y, I).
-move(b-k-X, Y, _):- king(X, Y).
-move(b-b-X, Y, I):- bishop(X, Y, I).
-move(w-b-X, Y, I):- bishop(X, Y, I).
-move(w-q-X, Y, I):- queen(X, Y, I).
-move(w-n-X, Y, _) :- knight(X, Y).
+on(X) :- drop(_-_-X).
+off(X) :- \+ drop(_-_-X).
 
+turn(X) :- start(X).
+cntr(w) :- turn(b).
+cntr(b) :- turn(w).
 
-% check for the non-existence of non-existence  
-% https://stackoverflow.com/a/50648745/3994250
-hello(K, Q):- move(b-k-K, Q, []),
-\+ (move(b-k-K, Flee, []), \+ Flee=Q, \+ move(w-q-Q, Flee, _)).
+enemy(X, Y) :- drop(w-_-X), drop(b-_-Y).
+enemy(X, Y) :- drop(b-_-X), drop(w-_-Y).
 
+on_turn(X) :- drop(C-_-X), turn(C).
 
-stale(K, Q) :- \+ K=Q, \+ move(w-q-Q, K, _),
-\+ (move(b-k-K, Flee, []), \+ move(w-q-Q, Flee, _)).
+on_pawn(X) :- _-p-X.
 
-
-q_mate(K, Q, O) :- move(b-k-K, Q, []),
-\+ (move(b-k-K, Flee, []), \+ Flee=Q, \+ move(w-q-Q, Flee, _)),
-move(w-b-O, Q, _).
+turn_king(X) :- drop(C-k-X), turn(C).
+cntr_king(X) :- drop(C-k-X), cntr(C).
 
 
-smother(K, N, B1, B2, B3) :- move(w-n-N, K, []),
-\+ (move(b-k-K, Flee, []), \+ Flee = B1, \+ Flee = B2 , \+ Flee = B3).
+rays(X, Y, []) :- drop(_-k-X), king(X, Y).
+rays(X, Y, []) :- drop(_-n-X), knight(X, Y).
+rays(X, Y, Is) :- drop(_-b-X), bishop(X, Y, Is).
+rays(X, Y, Is) :- drop(_-r-X), rook(X, Y, Is).
+rays(X, Y, Is) :- drop(_-q-X), queen(X, Y, Is).
+
+
+blocked_rays(X, Y, Bs) :- rays(X, Y, Is), include(on, Is, Bs).
+
+
+free_move(X, Y) :- on(X), off(Y).
+capture_move(X, Y) :- on(X), on(Y), enemy(X, Y).
+capture_move_pawn(X, Y) :- on(X), on(Y), enemy(X, Y), on_pawn(Y).
+
+
+free_ray_move(X, Y) :- free_move(X, Y), blocked_rays(X, Y, []).
+capture_ray_move(X, Y) :- capture_move(X, Y), blocked_rays(X, Y, []).
+
+any_ray_move(X, Y) :- free_ray_move(X, Y); capture_ray_move(X, Y).
+
+
+pushes(X, Y, Is) :- drop(w-p-X), white_push(X, Y, Is).
+pushes(X, Y, Is) :- drop(b-p-X), black_push(X, Y, Is).
+pawn_captures(X, Y) :- drop(w-p-X), white_capture(X, Y).
+pawn_captures(X, Y) :- drop(b-p-X), black_capture(X, Y).
+pawn_en_passant(X, Y, C) :- drop(w-p-X), white_en_passant(X, Y, C).
+pawn_en_passant(X, Y, C) :- drop(b-p-X), black_en_passant(X, Y, C).
+pawn_promote(X) :- drop(w-p-X), white_promote(X).
+pawn_promote(X) :- drop(b-p-X), black_promote(X).
+
+blocked_pushes(X, Y, Bs) :- pushes(X, Y, Is), include(on, Is, Bs).
+
+free_push_move(X, Y) :- free_move(X, Y), blocked_pushes(X, Y, []).
+capture_pawn_move(X, Y) :- capture_move_pawn(X, Y), pawn_captures(X, Y).
+enpassant_pawn_move(X, Y, C) :- free_move(X, Y), capture_move(X, C), pawn_en_passant(X, Y, C).
+promote_move(X, Y) :- pawn_promote(X), (free_push_move(X, Y); capture_pawn_move(X, Y)).
+
+any_pawn_move(X, Y, C) :- free_push_move(X, Y); capture_pawn_move(X, Y); enpassant_pawn_move(X, Y, C); promote_move(X, Y).
+
+
+
+any_turn_move(X, Y, C) :- on_turn(X), (any_ray_move(X, Y); any_pawn_move(X, Y, C)).
+
+
+cntr_king_captures(X) :- turn_king(K), (capture_ray_move(X, K); capture_pawn_move(X, K)).
+
+
+block_ray_at(X, Y, T) :- rays(X, Y, Is), member(T, Is).
+
+block_ray_move(X, Y, F, T) :- block_ray_at(X, Y, T), any_ray_move(F, T).
+block_pawn_move(X, Y, F, T) :- block_ray_at(X, Y, T), any_pawn_move(F, T, _).
+
+
+hello(X, F, T) :- turn_king(K), \+ (\+ (block_ray_move(X, K, F, T); block_pawn_move(X, K, F, T)), cntr_king_captures(X)).
+
 
 
 
