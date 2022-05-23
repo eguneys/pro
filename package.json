@@ -1,0 +1,12 @@
+{
+  "name": "pro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:eguneys/pro.git",
+  "author": "Emre Guneyler <eguneys@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "node gen_test.js",
+    "test": "rm _chess.plt && yarn build && swipl -g run_tests -t halt _chess.plt"
+  }
+}

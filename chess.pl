@@ -178,7 +178,7 @@ a_clear:- retract(drop(_)).
 print_drops:- forall(drop(X), write(X)).
 
 
-on(X) :- drop(_-_-X).
+on(X) :- once(drop(_-_-X)).
 off(X) :- \+ drop(_-_-X).
 
 turn(X) :- start(X).
