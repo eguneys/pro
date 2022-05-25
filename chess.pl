@@ -174,12 +174,12 @@ piese_color(X, Y) :- X=Y-_-_.
 a_turn(X) :- assertz(start(X)).
 a_drop(X) :- piese(X), piese_pos(X, Y), \+ on(Y), assertz(drop(X)).
 a_pickup(X) :- retract(drop(_-_-X)).
-a_clear:- retract(drop(_)).
+a_clear:- forall(drop(X), retract(drop(X))).
 
 print_drops:- forall(drop(X), write(X)).
 
 
-on(X) :- drop(_-_-X), !.
+on(X) :- drop(_-_-X).
 off(X) :- \+ drop(_-_-X).
 
 turn(X) :- start(X).
@@ -212,8 +212,8 @@ capture_move(X, Y) :- on(X), on(Y), enemy(X, Y).
 capture_move_pawn(X, Y) :- on(X), on(Y), enemy(X, Y), on_pawn(Y).
 
 
-free_ray_move(X, Y) :- free_move(X, Y), blocked_rays(X, Y, []).
-capture_ray_move(X, Y) :- capture_move(X, Y), blocked_rays(X, Y, []).
+free_ray_move(X, Y) :- blocked_rays(X, Y, []), free_move(X, Y).
+capture_ray_move(X, Y) :- blocked_rays(X, Y, []), capture_move(X, Y).
 
 any_ray_move(X, Y) :- free_ray_move(X, Y); capture_ray_move(X, Y).
 
@@ -238,9 +238,11 @@ any_pawn_move(X, Y, C) :- free_push_move(X, Y); capture_pawn_move(X, Y); enpassa
 
 
 
-any_turn_move(X, Y, C) :- on_turn(X), (any_ray_move(X, Y); any_pawn_move(X, Y, C)).
+any_turn_move(X, Y, C) :- (any_ray_move(X, Y); any_pawn_move(X, Y, C)), on_turn(X).
 any_turn_king_move(X, Y) :- turn_king(X), any_ray_move(X, Y).
 
+king_move_safe(_, Y) :- blocked_rays(X, Y, []), capture_ray_move(X, Y).
+king_move_safe(K, Y) :- blocked_rays(X, Y, [K]), capture_ray_move(X, Y).
 
 cntr_king_captures(X) :- turn_king(K), (capture_ray_move(X, K); capture_pawn_move(X, K)).
 
@@ -262,8 +264,8 @@ turn_on_double_check(X, Y) :- cntr_checks([X, Y]).
 turn_on_more_checks :- \+ turn_on_no_checks, \+ turn_on_one_check(_), \+ turn_on_double_check(_, _).
 
 
-turn_safe_move(X, Y) :- turn_on_one_check(C), (any_turn_king_move(X, Y); counter_block_or_capture(C, K, X, Y)).
-turn_safe_move(X, Y) :- turn_on_double_check(_, _), any_turn_king_move(X, Y).
+%turn_safe_move(X, Y) :- turn_on_one_check(C), (any_turn_king_move(X, Y); counter_block_or_capture(C, K, X, Y)).
+%turn_safe_move(X, Y) :- turn_on_double_check(_, _), any_turn_king_move(X, Y).
 
 
 

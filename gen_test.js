@@ -95,7 +95,7 @@ function make_board(name, board) {
 
 function make_test(board_name, _test_name, body) {
 
-  let [test_name, ..._pre] = _test_name.split(',')
+  let [test_name, ..._pre] = _test_name.split(';')
 
   let pre = _pre.join(',\n')
   let pre_comma = pre === '' ? '' : ','

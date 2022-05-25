@@ -1,15 +1,15 @@
-foo(special(S)) :- foo_special(S).
+file(a).
+file(b).
 
-foo_special(a).
+rank(1).
+rank(2).
+rank(3).
 
+up(1-2).
+up(2-3).
 
-drop(w-k-(a-4)).
-drop(b-b-(b-4)).
-
-
-on(X) :- drop(_-_-X).
-
-on(X) :- once(drop(_-_-X)).
-
+pos(X-Y) :- file(X), rank(Y).
 
 
+any_ray_move(X-Y, X-Y_) :- up(Y-Y_).
+any_ray_move(X-Y, X-Y_) :- up(Y-Z), up(Z-Y_).
