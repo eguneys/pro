@@ -171,6 +171,7 @@ piese_color(X, Y) :- X=Y-_-_.
 :- dynamic drop/1.
 :- dynamic start/1.
 
+a_turn(X) :- assertz(start(X)).
 a_drop(X) :- piese(X), piese_pos(X, Y), \+ on(Y), assertz(drop(X)).
 a_pickup(X) :- retract(drop(_-_-X)).
 a_clear:- retract(drop(_)).
@@ -178,7 +179,7 @@ a_clear:- retract(drop(_)).
 print_drops:- forall(drop(X), write(X)).
 
 
-on(X) :- once(drop(_-_-X)).
+on(X) :- drop(_-_-X), !.
 off(X) :- \+ drop(_-_-X).
 
 turn(X) :- start(X).

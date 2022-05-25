@@ -1,27 +1,12 @@
 /*
    
 
-
-k
-
-
+ r
+    K
+   B
+  b
 
 
 */
 
-hello :- on(a-5).
-hello2 :- on(a-5).
-
-
-/*
-q
-
-
-
-
-
-
-    P
-*/
-
-off :- on(a-8).
+hello, Ys = [d-6, e-6, f-6, d-5, f-5, e-4, f-4] :- pos(Y), setof(Y, any_turn_king_move(e-5, Y), Ys).

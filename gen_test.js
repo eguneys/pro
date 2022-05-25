@@ -15,9 +15,9 @@ function generate(data) {
 
 :- include(chess).
 
-clear_board :- a_clear.
+clear_board :- a_clear; a_turn(w).
 
-  `
+` 
 
   let tests
 
@@ -89,15 +89,23 @@ function make_board(name, board) {
     return res.join(',')
   }).join(', ')
 
-  return `${name}_setup :- ${_board}.\n`
+  return `${name}_setup :- clear_board, ${_board}.\n`
 }
 
 
-function make_test(board_name, test_name, body) {
+function make_test(board_name, _test_name, body) {
+
+  let [test_name, ..._pre] = _test_name.split(',')
+
+  let pre = _pre.join(',\n')
+  let pre_comma = pre === '' ? '' : ','
+
+
   return `
 test(${test_name}, [
   setup(${board_name}_setup),
-  cleanup(clear_board)
+  cleanup(clear_board)${pre_comma}
+  ${pre}
 ]) :- ${body}
 
 `
