@@ -5,7 +5,7 @@ fs.readFile('chess.jplt', 'utf8', (err, data) => {
 
   let res = generate(data)
 
-  fs.writeFile('_chess.plt', res, err => {
+  fs.writeFile('chess.plt', res, err => {
   })
 })
 

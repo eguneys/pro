@@ -241,8 +241,7 @@ any_pawn_move(X, Y, C) :- free_push_move(X, Y); capture_pawn_move(X, Y); enpassa
 any_turn_move(X, Y, C) :- (any_ray_move(X, Y); any_pawn_move(X, Y, C)), on_turn(X).
 any_turn_king_move(X, Y) :- turn_king(X), any_ray_move(X, Y).
 
-king_move_safe(_, Y) :- blocked_rays(X, Y, []), capture_ray_move(X, Y).
-king_move_safe(K, Y) :- blocked_rays(X, Y, [K]), capture_ray_move(X, Y).
+king_move_safe(K, F) :- any_ray_move(K, F), \+ ((blocked_rays(X, F, []); blocked_rays(X, F, [K])), enemy(K, X)).
 
 cntr_king_captures(X) :- turn_king(K), (capture_ray_move(X, K); capture_pawn_move(X, K)).
 

@@ -10,5 +10,3 @@
 */
 
 king_move_safe; Ys = [d-5, e-4, f-4, f-5] :- setof(Y, king_move_safe(e-5, Y), Ys).
-
-hello; Ys = [d-5, e-4, f-4, f-5] :- setof(Y, any_turn_king_move(e-5, Y), Ys).

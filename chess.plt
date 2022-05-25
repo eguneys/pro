@@ -13,10 +13,3 @@ test(king_move_safe, [
    Ys = [d-5, e-4, f-4, f-5] 
 ]) :-  setof(Y, king_move_safe(e-5, Y), Ys).
 
-
-test(hello, [
-  setup(board_1_setup),
-  cleanup(clear_board),
-   Ys = [d-5, e-4, f-4, f-5] 
-]) :-  setof(Y, any_turn_king_move(e-5, Y), Ys).
-
