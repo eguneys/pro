@@ -62,7 +62,10 @@ clear_board :- a_clear; a_turn(w).
 
   })
 
-  return res
+  return res + `
+
+  :- end_tests(chess).
+  `
 }
 
 let files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']

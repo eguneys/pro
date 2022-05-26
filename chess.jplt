@@ -9,4 +9,34 @@
 
 */
 
-king_move_safe; Ys = [d-5, e-4, f-4, f-5] :- setof(Y, king_move_safe(e-5, Y), Ys).
+king_move_safe; set(Y = [d-5, e-4, f-4, f-5]) :- king_move_safe(e-5, Y).
+
+
+/*
+
+
+
+
+
+    P n
+PPPP   P
+RNBQK  R
+*/
+
+notsuicide; set(Y = [f-2]) :- king_move_safe(e-1, Y).
+
+
+/*
+
+
+
+
+
+    b n
+PPPP   P
+RNBQK  R
+*/
+
+immobilized; set(Y == []) :- king_move_safe(e-1, Y).
+
+
