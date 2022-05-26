@@ -27,6 +27,10 @@ clear_board :- a_clear; a_turn(w).
 
   data.split('\n').forEach(line => {
 
+    if (line[0] === '%') {
+      return
+    }
+
     if (line === '/*') {
 
       tests = ''

@@ -9,6 +9,7 @@
 
 */
 
+% https://sicstus.sics.se/sicstus/docs/4.2.0/html/sicstus/PlUnit-A-Unit-Test-Box.html
 king_move_safe; set(Y = [d-5, e-4, f-4, f-5]) :- king_move_safe(e-5, Y).
 
 
