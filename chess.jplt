@@ -1,0 +1,4 @@
+/* rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1 */
+
+
+standard; set(Uci = ["Na3"]) :- legals(X, Y, C, P), to_uci(X, Y, C, P, Uci).

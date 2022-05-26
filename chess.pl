@@ -230,9 +230,9 @@ pawn_promote(X) :- drop(b-p-X), black_promote(X).
 
 blocked_pushes(X, Y, Bs) :- pushes(X, Y, Is), include(on, Is, Bs).
 
-free_push_move(X, Y) :- free_move(X, Y), blocked_pushes(X, Y, []).
-capture_pawn_move(X, Y) :- capture_move_pawn(X, Y), pawn_captures(X, Y).
-enpassant_pawn_move(X, Y, C) :- free_move(X, Y), capture_move(X, C), pawn_en_passant(X, Y, C).
+free_push_move(X, Y) :- blocked_pushes(X, Y, []), free_move(X, Y).
+capture_pawn_move(X, Y) :- pawn_captures(X, Y), capture_move(X, Y).
+enpassant_pawn_move(X, Y, C) :- pawn_en_passant(X, Y, C), free_move(X, Y), capture_move(X, C).
 promote_move(X, Y) :- pawn_promote(X), (free_push_move(X, Y); capture_pawn_move(X, Y)).
 
 any_pawn_move(X, Y, C) :- free_push_move(X, Y); capture_pawn_move(X, Y); enpassant_pawn_move(X, Y, C); promote_move(X, Y).
