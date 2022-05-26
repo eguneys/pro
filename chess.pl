@@ -310,6 +310,7 @@ to_uci(X, Y, C, P, Uci) :- drop(_-R-X), role_to_uci(R, RUci), pos_to_uci(Y, PUci
 to_uci(X, Y, C, P, Uci) :- drop(_-p-X), pos_to_uci(Y, PUci), atom_concat('', PUci, Uci).
 
 
+move_uci(X, Y, Uci) :- pos_to_uci(X, XUci), pos_to_uci(Y, YUci), atom_concat(XUci, YUci, Uci).
 
 board(Ps) :-
   setof(P, pos_(P), S),
@@ -338,3 +339,11 @@ set_subset([X|Xs], S) :-set_subset(Xs, T), (S = T; S = [X|T]).
 % https://stackoverflow.com/a/59266875/3994249
 ap([], L, L).
 ap([H|T], L, [H|Z]):- ap(T,L,Z).
+
+
+
+
+
+
+
+mate_in_1(e-4, e-8).
