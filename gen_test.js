@@ -1,7 +1,9 @@
 const fs = require('fs')
 
+let input = process.argv[2] || 'chess.jplt'
 
-fs.readFile('chess.jplt', 'utf8', (err, data) => {
+
+fs.readFile(input, 'utf8', (err, data) => {
 
   let res = generate(data)
 

@@ -7,6 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build": "node gen_test.js",
-    "test": "rm -f chess.plt && yarn build && swipl -g run_tests -t halt chess.plt"
+    "build:all": "cat *.jplt > _all_chess.jplt && node gen_test.js _all_chess.jplt",
+    "test": "rm -f chess.plt && yarn build && swipl -g run_tests -t halt chess.plt",
+    "test:all": "rm -f _all_chess.jplt && rm -f chess.plt && yarn build:all && swipl -g run_tests -t halt chess.plt"
   }
 }

@@ -174,7 +174,7 @@ piese_color(X, Y) :- X=Y-_-_.
 a_turn(X) :- assertz(start(X)).
 a_drop(X) :- piese(X), piese_pos(X, Y), \+ on(Y), assertz(drop(X)).
 a_pickup(X) :- retract(drop(_-_-X)).
-a_clear:- forall(drop(X), retract(drop(X))).
+a_clear:- forall(drop(X), retract(drop(X))), retract(start(X)).
 
 print_drops:- forall(drop(X), write(X)).
 
@@ -191,7 +191,7 @@ enemy(X, Y) :- drop(b-_-X), drop(w-_-Y).
 
 on_turn(X) :- drop(C-_-X), turn(C).
 
-on_pawn(X) :- _-p-X.
+on_pawn(X) :- drop(_-p-X).
 
 turn_king(X) :- drop(C-k-X), turn(C).
 cntr_king(X) :- drop(C-k-X), cntr(C).
@@ -203,13 +203,14 @@ rays(X, Y, Is) :- drop(_-b-X), bishop(X, Y, Is).
 rays(X, Y, Is) :- drop(_-r-X), rook(X, Y, Is).
 rays(X, Y, Is) :- drop(_-q-X), queen(X, Y, Is).
 
+interpose_rays(X, Y, I) :- rays(X, Y, Is), member(I, Is).
 
 blocked_rays(X, Y, Bs) :- rays(X, Y, Is), include(on, Is, Bs).
 
 
 free_move(X, Y) :- on(X), off(Y).
 capture_move(X, Y) :- on(X), on(Y), enemy(X, Y).
-capture_move_pawn(X, Y) :- on(X), on(Y), enemy(X, Y), on_pawn(Y).
+capture_move_pawn(X, Y) :- on(X), on(Y), enemy(X, Y), on_pawn(X).
 
 
 free_ray_move(X, Y) :- blocked_rays(X, Y, []), free_move(X, Y).
@@ -252,7 +253,7 @@ block_pawn_move(X, Y, F, T) :- block_ray_at(X, Y, T), any_pawn_move(F, T, _).
 
 any_block_move(X, Y, F, T) :- block_ray_move(X, Y, F, T); block_pawn_move(X, Y, F, T).
 
-counter_block_or_capture(X, Y, F, T) :- any_block_move(X, Y, F, T); Y=T, (capture_ray_move(F, T); capture_pawn_move(F, T)).
+counter_block_or_capture(X, Y, F, T) :- any_block_move(X, Y, F, T); X=T, (capture_ray_move(F, T); capture_pawn_move(F, T)).
 
 
 cntr_checks(Ls) :- findall(X, cntr_king_captures(X), Ls).
@@ -262,9 +263,18 @@ turn_on_one_check(X) :- cntr_checks([X]).
 turn_on_double_check(X, Y) :- cntr_checks([X, Y]).
 turn_on_more_checks :- \+ turn_on_no_checks, \+ turn_on_one_check(_), \+ turn_on_double_check(_, _).
 
+pinned_ray_move(A, K, P) :- interpose_rays(A, K, P).
 
-%turn_safe_move(X, Y) :- turn_on_one_check(C), (any_turn_king_move(X, Y); counter_block_or_capture(C, K, X, Y)).
-%turn_safe_move(X, Y) :- turn_on_double_check(_, _), any_turn_king_move(X, Y).
+turn_safe_move(X, Y) :- turn_king(K), turn_on_one_check(C), (king_move_safe(X, Y); counter_block_or_capture(C, K, X, Y)).
+turn_safe_move(X, Y) :- turn_on_double_check(_, _), king_move_safe(X, Y).
+
+turn_ray_move_safe(X, Y) :- turn_king(K), turn_on_one_check(C), counter_block_or_capture(C, K, X, Y).
+turn_ray_move_safe(X, Y) :- turn_king(K), turn_on_no_checks, any_ray_move(X, Y), 
+capture_move(A, K), (\+ pinned_ray_move(A, K, X); pinned_ray_move(A, K, Y); Y=A).
+
+
+turn_pawn_move_safe(X, Y) :- turn_ray_move_safe(X, Y).
+
 
 
 
