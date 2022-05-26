@@ -18,7 +18,10 @@ clear_board :- a_clear.
 
   `
 
-  let _ps = data.trim().split('\n').map(line => {
+  let _ps = data.trim()
+    .split('\n')
+    .slice(0, 3)
+    .map(line => {
     let [id, fen, moves, rating, _, __, ___, tags, link] = line.split(',')
 
     return {
@@ -64,7 +67,14 @@ function make_play_move(name, move) {
 
   return `play_move_${name} :- drop(C-R-(${f1}-${r1})),
     a_pickup(${f1}-${r1}),
-    a_drop(C-R-(${f2}-${r2})).`
+    a_drop(C-R-(${f2}-${r2})),  
+    
+    turn(X),
+    cntr(Y),
+    retract(start(X)),
+    a_turn(Y).
+    `
+
 
 
 }
@@ -116,7 +126,7 @@ function make_board_fen(name, board) {
 
 
 
-  return `${name}_setup :- clear_board; a_turn(${_side}), ${_board}.\n`
+  return `${name}_setup :- clear_board, a_turn(${_side}), ${_board}.\n`
 }
 
 
