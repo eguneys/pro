@@ -265,17 +265,49 @@ turn_on_more_checks :- \+ turn_on_no_checks, \+ turn_on_one_check(_), \+ turn_on
 
 pinned_ray_move(A, K, P) :- interpose_rays(A, K, P).
 
-turn_safe_move(X, Y) :- turn_king(K), turn_on_one_check(C), (king_move_safe(X, Y); counter_block_or_capture(C, K, X, Y)).
-turn_safe_move(X, Y) :- turn_on_double_check(_, _), king_move_safe(X, Y).
-
-turn_ray_move_safe(X, Y) :- turn_king(K), turn_on_one_check(C), counter_block_or_capture(C, K, X, Y).
-turn_ray_move_safe(X, Y) :- turn_king(K), turn_on_no_checks, any_ray_move(X, Y), 
-capture_move(A, K), (\+ pinned_ray_move(A, K, X); pinned_ray_move(A, K, Y); Y=A).
-
-
-turn_pawn_move_safe(X, Y) :- turn_ray_move_safe(X, Y).
+turn_ray_safe_move(X, Y) :- turn_on_double_check(_, _), king_move_safe(X, Y).
+turn_ray_safe_move(X, Y) :- turn_king(K), turn_on_one_check(C), king_move_safe(X, Y).
+turn_ray_safe_move(X, Y) :- turn_king(K), turn_on_one_check(C), counter_block_or_capture(C, K, X, Y).
+turn_ray_safe_move(X, Y) :- turn_king(K), turn_on_no_checks, any_ray_move(X, Y), 
+\+ (capture_move(A, K), (pinned_ray_move(A, K, X), \+ pinned_ray_move(A, K, Y)), (Y=A, capture_move(X, Y))).
 
 
+turn_pawn_safe_move(X, Y, C) :- turn_king(K), turn_on_no_checks, any_pawn_move(X, Y, C).
+
+
+
+legals(X, Y, C) :- on_turn(X), (turn_ray_safe_move(X, Y); turn_pawn_safe_move(X, Y, C)).
+
+
+
+role_to_uci(k, "K").
+role_to_uci(n, "N").
+role_to_uci(b, "B").
+role_to_uci(r, "R").
+role_to_uci(q, "Q").
+
+file_to_uci(a, "a").
+file_to_uci(b, "b").
+file_to_uci(c, "c").
+file_to_uci(d, "d").
+file_to_uci(e, "e").
+file_to_uci(f, "f").
+file_to_uci(g, "g").
+file_to_uci(h, "h").
+
+rank_to_uci(1, "1").
+rank_to_uci(2, "2").
+rank_to_uci(3, "3").
+rank_to_uci(4, "4").
+rank_to_uci(5, "5").
+rank_to_uci(6, "6").
+rank_to_uci(7, "7").
+rank_to_uci(8, "8").
+
+pos_to_uci(X-Y, Uci):- file_to_uci(X, XUci), rank_to_uci(Y, YUci), atom_concat(XUci, YUci, Uci).
+
+to_uci(X, Y, C, P, Uci) :- drop(_-R-X), role_to_uci(R, RUci), pos_to_uci(Y, PUci), atom_concat(RUci, PUci, Uci).
+to_uci(X, Y, C, P, Uci) :- drop(_-p-X), pos_to_uci(Y, PUci), atom_concat('', PUci, Uci).
 
 
 

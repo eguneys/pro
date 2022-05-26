@@ -17,7 +17,7 @@ function generate(data) {
 
 :- include(chess).
 
-clear_board :- a_clear; a_turn(w).
+clear_board :- a_clear.
 
 ` 
 
@@ -88,7 +88,8 @@ let roles = ['k', 'q', 'b', 'n', 'p', 'r']
 function make_board_fen(name, board) {
 
 
-  let [_pieces] = board.split(' ')
+  let [_pieces, _side] = board.split(' ')
+
 
   let _board = _pieces.split('/').flatMap((line, i) => {
 
@@ -116,7 +117,7 @@ function make_board_fen(name, board) {
 
 
 
-  return `${name}_setup :- clear_board, ${_board}.\n`
+  return `${name}_setup :- clear_board; a_turn(${_side}), ${_board}.\n`
 }
 
 let files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
@@ -143,7 +144,7 @@ function make_board(name, board) {
     return res.join(',')
   }).join(', ')
 
-  return `${name}_setup :- clear_board, ${_board}.\n`
+  return `${name}_setup :- clear_board, a_turn(w), ${_board}.\n`
 }
 
 
