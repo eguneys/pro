@@ -197,6 +197,7 @@ on_pawn(X) :- drop(_-p-X).
 turn_king(X) :- drop(C-k-X), turn(C).
 cntr_king(X) :- drop(C-k-X), cntr(C).
 
+on_white(X) :- drop(w-_-X).
 
 rays(X, Y, []) :- drop(_-k-X), king(X, Y).
 rays(X, Y, []) :- drop(_-n-X), knight(X, Y).
@@ -343,15 +344,21 @@ ap([H|T], L, [H|Z]):- ap(T,L,Z).
 
 
 
+king_bck_turn(K, F) :- on_white(K), king_bck(K, F).
+king_bck_turn(K, F) :- \+ on_white(K), king_fwd(K, F).
+
+king_fwd_turn(K, F) :- on_white(K), king_fwd(K, F).
+king_fwd_turn(K, F) :- \+ on_white(K), king_bck(K, F).
 
 
 friend(X, Y) :- drop(C-_-X), drop(C-_-Y).
 turn_queen(X) :- drop(C-q-X), start(C).
 turn_rook(X) :- drop(C-r-X), start(C).
 
+rook_on_way(X, Y, Is) :- rook(X, Y, Bs), include(on, Bs, Is).
 
 q_mate(X, Y) :- cntr_king(K), \+ king_bck(K, _), king_fwd(K, F), (friend(K, F); off(F)), queen(X, Y, []), queen(Y, F, []), king_lat(K, L), queen(Y, L, []), turn_queen(X).
 
-r_mate(X, Y) :- cntr_king(K), \+ king_bck(K, _), king_fwd(K, F), (friend(K, F); off(F)), rook(X, Y, []), rook(Y, K, []), rook(Y, F, []), turn_rook(X).
+r_mate(X, Y) :- cntr_king(K), turn_rook(X), rook_on_way(X, Y, []), rook_on_way(Y, K, []).
 
 mate_in_1(X, Y) :- q_mate(X, Y); r_mate(X, Y).

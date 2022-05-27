@@ -15,12 +15,15 @@ play_move_test_01GC2 :- drop(C-R-(e-7)),
     cntr(Y),
     retract(start(X)),
     a_turn(Y).
+
+
+    board_and_play_board_1 :- board_1_setup, play_move_test_01GC2.
     
 
 test(test_01GC2, [
-  setup(board_1_setup),
+  setup(board_and_play_board_1),
   cleanup(clear_board),
-  setup(play_move_test_01GC2), set(Uci = ['e4e8'])
+  set(Uci = ['e4e8'])
 ]) :- mate_in_1(X, Y), move_uci(X, Y, Uci).
 
 
@@ -34,12 +37,15 @@ play_move_test_00Xiu :- drop(C-R-(f-2)),
     cntr(Y),
     retract(start(X)),
     a_turn(Y).
+
+
+    board_and_play_board_2 :- board_2_setup, play_move_test_00Xiu.
     
 
 test(test_00Xiu, [
-  setup(board_2_setup),
+  setup(board_and_play_board_2),
   cleanup(clear_board),
-  setup(play_move_test_00Xiu), set(Uci = ['h4e1'])
+  set(Uci = ['h4e1'])
 ]) :- mate_in_1(X, Y), move_uci(X, Y, Uci).
 
 

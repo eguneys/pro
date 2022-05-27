@@ -45,12 +45,12 @@ clear_board :- a_clear.
     let board_name = gen_board_name()
 
     let name = `test_${_.id}`
-    let precomma = `setup(play_move_${name}), set(Uci = ['${m2}'])`
+    let precomma = `set(Uci = ['${m2}'])`
     let body = `mate_in_1(X, Y), move_uci(X, Y, Uci).`
 
     return [
       make_board_fen(board_name, _.fen),
-      make_play_move(name, m1),
+      make_play_move(board_name, name, m1),
       make_test(board_name, name, precomma, body)].join('\n')
   }).join('\n')
 
@@ -62,7 +62,7 @@ clear_board :- a_clear.
 }
 
 
-function make_play_move(name, move) {
+function make_play_move(board_name, name, move) {
   let [f1, r1, f2, r2] = move.split('')
 
   return `play_move_${name} :- drop(C-R-(${f1}-${r1})),
@@ -73,6 +73,9 @@ function make_play_move(name, move) {
     cntr(Y),
     retract(start(X)),
     a_turn(Y).
+
+
+    board_and_play_${board_name} :- ${board_name}_setup, play_move_${name}.
     `
 
 
@@ -84,7 +87,7 @@ function make_test(board_name, test_name, pre, body) {
 
   return `
 test(${test_name}, [
-  setup(${board_name}_setup),
+  setup(board_and_play_${board_name}),
   cleanup(clear_board),
   ${pre}
 ]) :- ${body}
