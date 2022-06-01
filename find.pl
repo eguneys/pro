@@ -3,8 +3,7 @@
 board([w-q-(g-5), w-r-(g-1), b-k-(h-7)]).
 
 
-
-queen_route(Q, QC, Is), mobile(Q, QC, B, B2), capture(QC, K, B2, _)
+checks(Q, QC, B, B2) :- queen_route(Q, QC, _), mobile(Q, QC, B, B2), queen_route(QC, K, _), capture(QC, K, B2, _).
 
 
 
@@ -25,7 +24,7 @@ on(Is, _-_-X) :- member(X, Is).
 route_pass(Is, B2, M) :- include(on(Is), B2, M).
 
 
-queen_route(Q, Q2, Is) :- queen(Q, Q2, Is).
+queen_route(_-_-Q, _-_-Q2, Is) :- queen(Q, Q2, Is).
 
 
 right(a-b).
