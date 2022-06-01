@@ -343,15 +343,3 @@ ap([H|T], L, [H|Z]):- ap(T,L,Z).
 
 
 
-
-
-friend(X, Y) :- drop(C-_-X), drop(C-_-Y).
-turn_queen(X) :- drop(C-q-X), start(C).
-turn_rook(X) :- drop(C-r-X), start(C).
-
-
-q_mate(X, Y) :- cntr_king(K), \+ king_bck(K, _), king_fwd(K, F), (friend(K, F); off(F)), queen(X, Y, []), queen(Y, F, []), king_lat(K, L), queen(Y, L, []), turn_queen(X).
-
-r_mate(X, Y) :- cntr_king(K), \+ king_bck(K, _), king_fwd(K, F), (friend(K, F); off(F)), rook(X, Y, []), rook(Y, K, []), rook(Y, F, []), turn_rook(X).
-
-mate_in_1(X, Y) :- q_mate(X, Y); r_mate(X, Y).
