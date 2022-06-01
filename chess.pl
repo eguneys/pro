@@ -344,6 +344,7 @@ ap([H|T], L, [H|Z]):- ap(T,L,Z).
 
 
 
+<<<<<<< HEAD
 king_bck_turn(K, F) :- on_white(K), king_bck(K, F).
 king_bck_turn(K, F) :- \+ on_white(K), king_fwd(K, F).
 
@@ -362,3 +363,5 @@ q_mate(X, Y) :- cntr_king(K), \+ king_bck(K, _), king_fwd(K, F), (friend(K, F); 
 r_mate(X, Y) :- cntr_king(K), turn_rook(X), rook_on_way(X, Y, []), rook_on_way(Y, K, []).
 
 mate_in_1(X, Y) :- q_mate(X, Y); r_mate(X, Y).
+=======
+>>>>>>> 0691feb583c75b74dcc5ece96e5675b356de643d
