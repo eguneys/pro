@@ -7,10 +7,6 @@
 :- dynamic(blue/1).
 :- dynamic(yellow/1).
 
-:- dynamic(king/1).
-:- dynamic(pawn/1).
-:- dynamic(rook/1).
-
 list([]).
 
 color(white, Pos) :- white(Pos).
@@ -47,7 +43,7 @@ mateIn28([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),
 mateIn29([w-p-(f-7),w-r-(c-6),w-k-(d-6),w-b-(d-5),b-p-(h-4),b-p-(g-3),b-p-(f-2),b-k-(g-1),b-q-(h-7)]).
 
 
-%piece(X) :- boardX(B), member(X, B).
+piece(X) :- boardX(B), member(X, B).
 
 /*
 (c-6)-(c-1) Rc1
@@ -55,20 +51,21 @@ mateIn29([w-p-(f-7),w-r-(c-6),w-k-(d-6),w-b-(d-5),b-p-(h-4),b-p-(g-3),b-p-(f-2),
 (c-1)-(h-1) Rh1#
 */
 
-boardX(B) :- boardI(B).
-
-boardI(B) :- mateIn29(B).
+boardI(B) :- mateIn25(B).
 
 
 lsX([
   ok(b-k-KP),
-  check_ray(O-D, KP)
-  /*mate(b-k-KP)*/
+  check_ray(O-D, KP),
+  flee(b-k-KP, b-k-Flee),
+  check_ray(D-M, Flee),
+  mate(b-k-KP)
 ]).
 
-ls(Ls) :- boardX(B), lsX(Ls), foldl(run, Ls, B, _).
+ls(Ls) :- boardI(B), lsX(Ls), foldl(run, Ls, B, BL).
 
 
+/*
 
 yellow(X) :-
   boardX(B),
@@ -81,6 +78,7 @@ yellow(X) :-
   ray_route(R-PD, C, _),
   capture(w-R-PD, b-k-C, B2, _),
   X=PD.
+*/
 
 
 run(check_ray(O-D, C), B, B2) :-
@@ -102,8 +100,7 @@ rook_route(PO, PD, _),
 mobile(O, D, B, B2),
 rook_route(PD, C, _).
 
-/*
-run(flee(K, Flee), B, B):-
+run(flee(K, Flee), B, B2):-
 member(b-k-KP, B),
 K=b-k-PK,
 Flee=b-k-FK,
@@ -123,14 +120,41 @@ run(mate(K), B, B) :-
 
   capture(w-R-MP, b-k-KP, B, _),
   ray_route(R-MP, KP, _),
+\+ (
   king_route(KP, Flee),
   mobile(b-k-KP, b-k-Flee, B, BFlee),
-\+ (
-  ray_member(w-R-RP, BFlee),
-  ray_route(R-RP, Flee, _)
+\+ (ray_route(R2-FC, Flee, _),
+  capture(w-R2-FC, b-k-Flee, BFlee, _)
+)
 )
 .
-*/
+
+
+yellow(X) :- 
+  boardX(B),
+  member(b-k-KP, B),
+  capture(w-R-MP, b-k-KP, B, _),
+  ray_route(R-MP, KP, _),
+  king_route(KP, Flee),
+  X=Flee,
+  mobile(b-k-KP, b-k-Flee, B, B2),
+\+ (
+  ray_route(R2-FC, Flee, _),
+  capture(w-R2-FC, b-k-Flee, B2, _)
+)
+.
+
+
+
+board_2(BOut) :- boardI(B), 
+pickup(b-k-(g-1), B, B2),
+pickup(w-r-(c-6), B2, B3),
+drop(b-k-(h-2), B3, B4),
+drop(w-r-(h-1), B4, BOut).
+
+boardX(X) :- boardI(X).
+
+
 
 /*
 orange(X) :- boardX(B),
@@ -140,6 +164,7 @@ mobile(b-k-KP, b-k-Flee, B, BFLee),
 X=Flee. 
 */
 
+/*
 piece(X) :- boardX(B),
 ray_member(b-k-KP, B),
 king_route(KP, Flee),
@@ -149,7 +174,7 @@ ray_member(w-R-RP, BFlee),
 ray_route(R-RP, Flee, _)
 ),
 member(X, BFlee).
-
+*/
 
 
 king_at(X, B) :- boardX(B), member(b-k-X, B).
@@ -163,7 +188,7 @@ rook_At(R, B),
 rook_route(R, CAt, _),
 rook_route(CAt, C, _).
 
-% white(Flee) :- king_flee(K, Flee, B), \+ pawn_at(Flee, B).
+white(Flee) :- king_flee(K, Flee, B), \+ pawn_at(Flee, B).
 %green(Flee) :- king_flee(K, Flee, B), pawn_at(Flee, B).
 
 red(CAt) :- king_at(K, B), findall(Flee, white(Flee), Flees), rook_Check(R, B, CAt, K), maplist(rook_Check(R, B, CAt), Flees).
