@@ -9,7 +9,19 @@ up(1-2).
 up(2-3).
 
 pos(X-Y) :- file(X), rank(Y).
+tree(O, B, Ls) :- Ls=[check(O-D, K), flee(K-Flee), check(D-Mate, Flee), mate(Mate)], run(B, Ls).
 
 
-any_ray_move(X-Y, X-Y_) :- up(Y-Y_).
-any_ray_move(X-Y, X-Y_) :- up(Y-Z), up(Z-Y_).
+next(a-b).
+next(a-d).
+next(b-c).
+next(b-e).
+
+hello(B, Ls) :- Ls=[king(K), king2(K-C), c(C)], run(B, Ls).
+
+run(_, []).
+run(B, [king(K)|Rest]) :- next(B-K), run(K, Rest).
+run(B, [king2(K-C)|Rest]) :- K=b,next(B-C), run(C, Rest).
+run(B, [c(K)|Rest]) :- K=c, run(B, Rest).
+
+
