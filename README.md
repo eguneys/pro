@@ -95,7 +95,7 @@ So  ,  is `logical and` we can use to chain facts, as we wish.
 
 Let's ask what are the files between `a` and `h`.
 
-We know there are no files between files that has an immediate right. For example `a` and `b`.
+We know, there are no files, between files that has an immediate right. For example `a` and `b`.
 
 ```
 righter(X-Y, []) :- right(X-Y).
@@ -132,5 +132,34 @@ Something regular:
 
 `?- righter(a-h, Ls).`, see b, c, d, e, f, g are the files between a and h.
 
+### Exercises for Section 1-3
 
-### Section 4 - 
+
+Define these facts:
+
+```pl
+
+left2(X-Y) :- % c's 2 left is a, for all files that has 2 left. For example `left2(c-a).` is true.
+lefter(X-Y, Ls) :- % righter we defined above returns files between from right to left. For example `righter(c-a, Ls).` is false. This will tell files from left to right, so `lefter(h-a, [g, f, e, d, c, b]).` is true.
+rank(1). % Tell ranks 1 thru 8
+up(1-2). % Similar to right or left but for ranks
+down(X-Y) :- % Define in terms of up
+
+up2(X-Y) :- % Similar to right2 for ranks
+down2(X-Y) :- % Similar to left2 for ranks
+
+upper(X-Y, Ls) :- % Similar to righter for ranks, note that you need the recursive techniqe for accumulating a list, that is a base case and a recursive definition.
+
+downer(X-Y, Ls) :- % Similar to lefter for ranks.
+
+```
+
+That's quite a lot to cover, but that's most of what prolog is all about.
+
+### Section 4 - A file and a rank is a chess coordinate
+
+
+```pl
+pos(F-R) :- file(F), rank(R).
+```
+
