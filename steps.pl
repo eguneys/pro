@@ -72,4 +72,22 @@ downer(X-Y, []) :- down(X-Y).
 downer(X-Y, [Z|Rest]) :- down(X-Z), downer(Z-Y, Rest).
 
 
+% Section 4 
+
+pos(F-R) :- file(F), rank(R).
+
+
+% https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body
+forward(X-Y,X-Y_, N) :- upper(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
+
+
+fwd_que_intermediate(X-Y, X_-Y_, MY, MX) :- upper(Y-Y_, MY), lefter(X-X_, MX).
+
+fwd_que(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), lefter(X-X_, MX), zip_pos(MX, MY, N).
+
+
+zip_pos([], [], []).
+zip_pos([X|Xs], [Y|Ys], [X-Y|Rest]) :- zip_pos(Xs, Ys, Rest).
+
+
 

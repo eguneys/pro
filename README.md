@@ -158,8 +158,96 @@ That's quite a lot to cover, but that's most of what prolog is all about.
 
 ### Section 4 - A file and a rank is a chess coordinate
 
+Let's express a chess coordinate like `a-4`, `b-5`, `h-8`. It has the `pos(X-Y).` structure where X is a file and Y is a rank. 
 
 ```pl
 pos(F-R) :- file(F), rank(R).
 ```
+
+`?- pos(X).` see it enumerates all the coordinates.
+
+Let's enumerate coordinates on the a file only.
+
+`?- pos(X), X=a-_.` see it enumerates only `a-1` thru `a-8`. 
+
+
+Now let's tell from a coordinate `a-4` to `a-8`, there are coordinates `a-5` `a-6` `a-7`.
+
+Think about how we use it:
+
+`?- forward(a-4, a-8, [a-5, a-6, a-7]).`, we want this to be true.
+
+Our first attempt is easy:
+
+```pl
+forward(X-Y,X-Y_, N) :- upper(Y-Y_, N).
+```
+
+The structure looks like, file stays the same, thus same variable X is used, but the rank changes, that has the ranks in between 4 and 8. As we have a structure to check for that `upper`.
+
+If we ask for our query
+
+`?- forward(a-4, a-8, Ls).` , we get `Ls = [5, 6, 7]` . Of course upper just works on ranks, but we need to map this list into `Ls = [a-5, a-6, a-7]`. 
+
+There is a terse technique for mapping lists in Prolog, explained in this SO question, [https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body](https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body).
+
+```pl
+forward(X-Y,X-Y_, N) :- upper(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
+```
+
+The last part of the definition uses this technique, and maps `[5, 6, 7]`, into `[a-5, a-6, a-7]`.
+
+
+Note that `?- forward(a-8, a-4, Ls)` is false. It doesn't cover ranks going down, because we only used `upper`.
+Also note that `?- forward(a-4, b-8, Ls)` is false. Because we only covered coordinates with the same file. (The same X is used in both places).
+
+Now ask `?- forward(a-4, X, _).`, see it enumerates coordinates forward of a-4, no matter what's in between, `X = a-5 ; X = a-6 ; X = a-7 ; X = a-8`.
+
+We can go straight forward or backward, or laterally left and right with what we have learned. They are called `forward(X, Y, Ls)`, `backward(X, Y, Ls)`, `king_side(X, Y, Ls)`, and `queen_side(X, Y, Ls)` and left as an exercise.
+
+
+Let's think how we can find coordinates in diagonal direction. For example: 
+
+`fwd_que(e-4, d-5, []).` or `fwd_que(e-4, a-8, [d-5, c-6, b-7]).`. Note that this direction is forward and queen side only. Doesn't cover other diagonal directions.
+
+What is the pattern for this structure, both file and rank changes but the change occurs in same amount of steps. Like `e` goes `d, c, b`, while `4` goes `5, 6, 7`. That is `queen_side` for the file and `forward` for the rank.
+
+Let's see the intermediate step of how that looks:
+
+```pl
+fwd_que_intermediate(X-Y, X_-Y_, MY, MX) :- upper(Y-Y_, MY), lefter(X-X_, MX).
+```
+
+`?- fwd_que_intermediate(e-4, a-8, MX, MY).`, see it gives two lists `MX = [5, 6, 7]`, and `MY = [d, c, b]` . 
+
+Before we had a single list we could map, this time we want to zip two lists, that is pair the elements that are at the same index.
+
+Use the recursive technique to accumulate lists to achieve this.
+
+Here are the base case and recursive definition.
+
+```pl
+zip_pos([], [], []).
+zip_pos([X|Xs], [Y|Ys], [X-Y|Rest]) :- zip_pos(Xs, Ys, Rest).
+```
+
+Try this out with different lists:
+
+`?- zip_pos([a, b, c], [1, 2, 3], Ls).` see `Ls = [a-1, b-2, c-3].`
+
+Note that lists with different length returns false.
+
+Now we can zip the two lists and return as result, note how the naming of variables have changed.
+
+```pl
+fwd_que(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), lefter(X-X_, MX), zip_pos(MX, MY, N).
+```
+
+Let's ask for diagonal directions for a coordinate:
+
+`fwd_que(e-3, X, _).` see it returns `X = d-4 ; X = c-5 ; X = b-6 ; X = a-7`.
+
+Note that it only returns coordinates in the forward queen side direction. Other diagonal directions are left as an exercise.
+
+
 
