@@ -90,4 +90,49 @@ zip_pos([], [], []).
 zip_pos([X|Xs], [Y|Ys], [X-Y|Rest]) :- zip_pos(Xs, Ys, Rest).
 
 
+% Exercises for Section 4
+
+backward(X-Y,X-Y_, N) :- downer(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
+queen_side(X-Y,X_-Y, N) :- lefter(X-X_, M), findall(X__-Y, member(X__, M), N).
+king_side(X-Y,X_-Y, N) :- righter(X-X_, M), findall(X__-Y, member(X__, M), N).
+
+fwd_kng(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), righter(X-X_, MX), zip_pos(MX, MY, N).
+bck_que(X-Y, X_-Y_, N) :- downer(Y-Y_, MY), lefter(X-X_, MX), zip_pos(MX, MY, N).
+bck_kng(X-Y, X_-Y_, N) :- downer(Y-Y_, MY), righter(X-X_, MX), zip_pos(MX, MY, N).
+
+fwd_que2bck_kng(X,Y, N) :- fwd_que(X, Y, N); bck_kng(X, Y, N).
+fwd_kng2bck_que(X,Y, N) :- fwd_kng(X, Y, N); bck_que(X, Y, N).
+
+fwd2bck(X,Y, N) :- forward(X, Y, N); backward(X, Y, N).
+que2kng(X,Y, N) :- queen_side(X, Y, N); king_side(X, Y, N).
+
+king_fwd(X,Y) :- forward(X,Y, []); fwd_que(X,Y, []); fwd_kng(X,Y, []). 
+king_bck(X,Y) :- backward(X,Y, []); bck_que(X,Y, []); bck_kng(X,Y, []).
+king_lat(X,Y) :- queen_side(X,Y, []); king_side(X,Y,[]).
+
+fwd2_que(X-Y, X_-Y_) :- up2(Y-Y_), left(X-X_).
+fwd2_kng(X-Y, X_-Y_) :- up2(Y-Y_), right(X-X_).
+
+fwd_que2(X-Y, X_-Y_) :- up(Y-Y_), left2(X-X_).
+fwd_kng2(X-Y, X_-Y_) :- up(Y-Y_), right2(X-X_).
+
+
+bck2_que(X-Y, X_-Y_) :- down2(Y-Y_), left(X-X_).
+bck2_kng(X-Y, X_-Y_) :- down2(Y-Y_), right(X-X_).
+
+bck_que2(X-Y, X_-Y_) :- down(Y-Y_), left2(X-X_).
+bck_kng2(X-Y, X_-Y_) :- down(Y-Y_), right2(X-X_).
+
+fwd2(X, Y, N) :- forward(X, Y, N), length(N, 1).
+bck2(X, Y, N) :- backward(X, Y, N), length(N, 1).
+
+
+knight(X, Y) :- fwd2_que(X, Y); fwd2_kng(X, Y); fwd_que2(X, Y); fwd_kng2(X, Y); 
+                bck2_que(X, Y); bck2_kng(X, Y); bck_que2(X, Y); bck_kng2(X, Y).
+
+bishop(X, Y, N) :- fwd_que(X, Y, N); fwd_kng(X, Y, N); bck_que(X, Y, N); bck_kng(X, Y, N).
+rook(X, Y, N) :- forward(X, Y, N); backward(X, Y, N); queen_side(X, Y, N); king_side(X, Y, N).
+king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
+queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
+
 

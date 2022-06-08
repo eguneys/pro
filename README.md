@@ -5,6 +5,7 @@ Before we start, install Prolog, create a prolog script file like `chess.pl`, ru
 `?- consult(chess).`
 
 <sub> `?-` is the prompt written on the repl, It means input `consult(chess).` on the repl </sub>
+<sub> You need to run `consult(chess).` after each change made to the file to reload the changes. </sub>
 
 ### Section 1 - Tell the chess files a thru h
 
@@ -187,7 +188,7 @@ The structure looks like, file stays the same, thus same variable X is used, but
 
 If we ask for our query
 
-`?- forward(a-4, a-8, Ls).` , we get `Ls = [5, 6, 7]` . Of course upper just works on ranks, but we need to map this list into `Ls = [a-5, a-6, a-7]`. 
+`?- forward(a-4, a-8, Ls).` , we get `Ls = [5, 6, 7]` . Of course `upper` just works on ranks, but we need to map this list into `Ls = [a-5, a-6, a-7]`. 
 
 There is a terse technique for mapping lists in Prolog, explained in this SO question, [https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body](https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body).
 
@@ -245,9 +246,77 @@ fwd_que(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), lefter(X-X_, MX), zip_pos(MX, MY, N).
 
 Let's ask for diagonal directions for a coordinate:
 
-`fwd_que(e-3, X, _).` see it returns `X = d-4 ; X = c-5 ; X = b-6 ; X = a-7`.
+`?- fwd_que(e-3, X, _).` see it returns `X = d-4 ; X = c-5 ; X = b-6 ; X = a-7`.
+
+We can also limit to coordinates that has three coordinates in between, that means 3 distance away:
+
+`?- fwd_que(e-3, X, [_, _, _])` see it returns `X = a-7`.
+
+Or we can use the `length(Ls, Length).`, which tells the length of a list.
+
+`?- fwd_que(e-3, X, Ls), length(Ls, 3).` see it returns `X = a-7 , Ls = [d-4, c-5, b-6]`.
 
 Note that it only returns coordinates in the forward queen side direction. Other diagonal directions are left as an exercise.
 
 
+### Exercises for Section 4
 
+Define these facts:
+
+```pl
+/*
+?- backward(a-4, X, Ls).
+X = a-3,
+Ls = [] ;
+X = a-2,
+Ls = [a-3] ;
+X = a-1,
+Ls = [a-3, a-2] ;
+*/
+backward(X-Y,X-Y_, N) :- % Similar to forward in backwards direction
+queen_side(X-Y,X_-Y, N) :- % Similar to forward in horizontal queen side direction. (queen side is h to a)
+king_side(X-Y,X_-Y, N) :- % Similar to queen_side in king side direction (king side is a to h).
+
+fwd_kng(X-Y, X_-Y_, N) :- % Similar to fwd_que in diagonal forward king side direction.
+bck_que(X-Y, X_-Y_, N) :- % Similar to fwd_que in diagonal backward queen side direction.
+bck_kng(X-Y, X_-Y_, N) :- % Similar to fwd_que in diagonal backward king side direction.
+
+king_fwd(X,Y) :- % A king's movement in forward direction. King can move one square to it's neighbors in every direction. This is just the forward directions. For example 
+
+`?- king_fwd(e-4, Y)` gives `Y = e-5 ; Y = d-5 ; Y = f-5`.
+
+king_bck(X,Y) :- % A king's movement in backward direction. `king_bck(e-4, Y).` is `Y = e-3 ; Y = d-3 ; Y = f-3`.
+king_lat(X,Y) :- % A king's movement in lateral direction both left and right. `king_lat(e-4, Y) is `Y = d-4 ; Y = f-4 `.
+
+Use the facts we defined earlier, forward, backward, king_side, queen_side etc. Limit the length of the list to 0, to get just the neighbors. Use  ,  as a logical and operator to chain facts left and right.
+
+% More challenges
+
+fwd2_que(X-Y, X_-Y_) :- % Two forwards one queen side, one way of how a knight moves.
+fwd2_kng(X-Y, X_-Y_) :- % Two forwards one king side.
+
+fwd_que2(X-Y, X_-Y_) :- % fwd_que2(c-3, a-4).
+fwd_kng2(X-Y, X_-Y_) :- % fwd_kng2(e-4, g-5).
+
+
+bck2_que(X-Y, X_-Y_) :- % bck2_que(e-4, d-2).
+bck2_kng(X-Y, X_-Y_) :- % bck2_kng(e-4, f-2).
+
+bck_que2(X-Y, X_-Y_) :- % bck_que2(e-4, c-3).
+bck_kng2(X-Y, X_-Y_) :- % bck_kng2(e-4, g-3).
+
+fwd2(X, Y, N) :- % Two forwards like how a pawn moves from it's home rank. `?- fwd2(e-4, e-6, [e-5]).`
+bck2(X, Y, N) :- % bck2(e-4, e-2, [e-3]).
+
+
+knight(X, Y) :- % How a knight moves, chain the facts we defined earlier to cover all knight moves. Note that there is no list in between the moves because knight isn't obstructed by any in between coordinates, it jumps.
+
+bishop(X, Y, N) :- % How a bishop moves, Goes from X to Y with N is a list that are in between the coordinates X and Y.
+rook(X, Y, N) :- % rook(a-4, d-4, [b-4, c-4]).
+king(X, Y) :- % king(a-4, Y) , gives `Y = a-5 ; Y = b-5 ; Y = a-3 ; Y = b-3 ; Y = b-4 ;` Note that the order might differ because how you define this.
+queen(X, Y, N) :- % queen(a-4, d-4, [b-4, c-4]), queen(a-4, b-3, []).
+
+```
+
+
+### Section 5 -
