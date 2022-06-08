@@ -76,9 +76,61 @@ If you only care about one side of the pair, you can ask like `?- left(X-_)` , _
 ### Section 3 - Go from a to h by passing b, c, d, e, f, and g
 
 
-We know all files, we know files a thru g has a right, point out that h doesn't have a right and a doesn't have a left. Just ask:
+We know all `file`s, we know files `a thru g` has a `right`, note that `h` doesn't have a `right` and `a` doesn't have a `left`. Just ask:
 
-`?- right(h-X).` and `?- left(a-X).`
+`?- right(h-X).` and `?- left(a-X).`, see both returns false.
 
 
+Think about `right2(a-c).`, c is 2 right to a, as if there is a B where `right(a-B)` and `right(B-c)`, which is true for `B = b`.
 
+```pl
+right2(X-Y) :- right(X-Z), right(Z-Y).
+```
+
+So  ,  is `logical and` we can use to chain facts, as we wish.
+
+
+`?- right2(X-Y)`, see similar answers to `right` except for 2 to the right.
+
+
+Let's ask what are the files between `a` and `h`.
+
+We know there are no files between files that has an immediate right. For example `a` and `b`.
+
+```
+righter(X-Y, []) :- right(X-Y).
+```
+
+Ask for `?- righter(a-b, X).`, see it returns `X = []`. files between a and b is an empty list `[]`. 
+
+Ask for `?- righter(X-Y, []).`, meaning files that has no other files between them, see it returns results like `X = a, Y = b`, and other pairs that has a `right(X-Y).` structure.
+
+
+Now there is a recursive technique to accumulate elements to a list like this:
+
+```
+righter(X-Y, [Z|Rest]) :- right(X-Z), righter(Z-Y, Rest).
+```
+
+There is a file `Z`, and `other files` called `Rest` between files `X` and `Y`, when,
+there is a `right(X-Z)`, and a `righter(Z-Y, Rest)`.
+
+In other words `Z` and `Rest` are the files between `X` and `Y`, when `Z` is right to `X`, and `Rest` is files between `Z` and `Y`. Some terse explained logic, it works though.
+
+<sub> [Z|Rest] is a list destructured into a head and a tail </sub>
+
+
+Let's ask something easy:
+
+`?- righter(X-Y, [b]).` , see a-c is the pair that has only b in between.
+`?- righter(X-Y, [b,c]).` , see a-d is the pair that has b, and c in between.
+
+
+`?- righter(X-Y, [_, _, _, _, _]).`, see a-g and b-h are the pairs that has five files between them.
+
+Something regular:
+
+`?- righter(a-h, Ls).`, see b, c, d, e, f, g are the files between a and h.
+
+
+### Section 4 - 
