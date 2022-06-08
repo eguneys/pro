@@ -196,6 +196,12 @@ There is a terse technique for mapping lists in Prolog, explained in this SO que
 forward(X-Y,X-Y_, N) :- upper(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
 ```
 
+Note how `file(X).`, returns all definitions of `X` a thru h, one by one with a semicolon, we can use `findall` to get them all at once in a list like this:
+
+`?- findall(X, file(X), Ls).` gives `Ls = [a, b, c, d, e, f, g, h]`.
+
+`member(X, Ls).` returns true if X is an element of Ls. Like we can split all elements of a list as separate answers if we ask `?- member(X, [1,2,3]).` returns `X = 1 ; X = 2 ; X = 3`.
+
 The last part of the definition uses this technique, and maps `[5, 6, 7]`, into `[a-5, a-6, a-7]`.
 
 
@@ -319,4 +325,7 @@ queen(X, Y, N) :- % queen(a-4, d-4, [b-4, c-4]), queen(a-4, b-3, []).
 ```
 
 
-### Section 5 -
+### Section 5 - Tell some chess pieces on a chess board
+
+
+

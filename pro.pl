@@ -51,6 +51,82 @@ piece(X) :- boardX(B), member(X, B).
 (c-1)-(h-1) Rh1#
 */
 
+
+uci(w-r) :- format('R').
+uci(w-q) :- format('Q').
+uci(w-k) :- format('K').
+uci(w-n) :- format('N').
+uci(w-b) :- format('B').
+uci(w-p) :- format('P').
+uci(b-Role) :- format('~a', Role).
+
+
+pretty(B) :- format('r k k \nhello~a', B).
+
+/*
+board([w-k-(a-2), b-q-(c-3), w-r-(a-1), b-b-(h-8)]).
+
+I want to print this like that:
+
+8       b
+7
+6
+5
+4
+3 q
+2K
+1R
+ abcdefgh
+
+I have already written how to format pieces:
+
+uci(w-r) :- format('R').
+uci(w-q) :- format('Q').
+uci(w-k) :- format('K').
+uci(w-n) :- format('N').
+uci(w-b) :- format('B').
+uci(w-p) :- format('P').
+uci(b-Role) :- format('~a', Role).
+
+I just need to fill this in:
+pretty(B) :- format('r k k \nhello~a', B).
+
+
+So `?- board(B), pretty(B).` will print out the board.
+
+I thought B should be sorted by positions a-8 to h-1 .
+
+So how would I sort this array of pieces by the third pair.
+
+I also have this predicate fact of what is bigger:
+
+up(1-2).
+up(2-3).
+up(3-4).
+up(4-5).
+up(5-6).
+up(6-7).
+up(7-8).
+
+upper(X-Y, []) :- up(X-Y).
+upper(X-Y, [Z|Rest]) :- up(X-Z), upper(Z-Y, Rest).
+
+right(a-b).
+right(b-c).
+right(c-d).
+right(d-e).
+right(e-f).
+right(f-g).
+right(g-h).
+
+righter(X-Y, []) :- right(X-Y).
+righter(X-Y, [Z|Rest]) :- right(X-Z), righter(Z-Y, Rest).
+
+bigger(X-Y,X_-Y_) :- upper(Y-Y_); Y=Y_, righter(X-X_).
+
+*/
+
+
 boardI(B) :- mateIn25(B).
 
 
