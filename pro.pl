@@ -21,7 +21,7 @@ color(yellow, Pos) :- yellow(Pos).
 piece(X) :- boardX(B), member(X, B).
 
 
-boardI(B) :- mateIn25(B).
+boardI(B) :- boardR(B).
 
 boardX(X) :- boardI(X).
 
@@ -34,10 +34,27 @@ ray_route(Role-O, D, Is),
 maplist(off(B), Is),
 mobile(Color-Role-O, Color-Role-D, B, B2).
 
+mobile_pawn(O, D, B, B2) :-
+  member(Color-p-O, B),
+  pawn_push(Color-O, D, Is),
+  maplist(off(B), Is),
+  mobile(Color-p-O, Color-p-D, B, B2).
+
 
 off(B, X) :- \+ on(B, X).
 
-print_boardM(B, P) :- findall(D, mobile_ray(P, D, B, _), Bs), findall(a-x-X, member(X, Bs), Bss), foldl(drop, Bss, B, Res), print_board(Res).
+print_boardM(B, P) :- 
+  findall(D, mobile_ray(P, D, B, _), Bs), 
+  findall(a-x-X, member(X, Bs), Bss), 
+  foldl(drop, Bss, B, Res), 
+  print_board(Res).
+
+print_boardPM(B, P) :-
+  findall(D, mobile_pawn(P, D, B, _), Bs), 
+  findall(a-x-X, member(X, Bs), Bss), 
+  foldl(drop, Bss, B, Res), 
+  print_board(Res).
+
 
 
 lsX([
@@ -105,27 +122,11 @@ run(mate(K), B, B) :-
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
 ray_route(q-P, P2, Is) :- queen(P, P2, Is).
 ray_route(r-P, P2, Is) :- rook(P, P2, Is).
+ray_route(n-P, P2, []) :- knight(P, P2).
+ray_route(k-P, P2, []) :- king(P, P2).
 
-bishop_route(B, B2, Is) :- bishop(B, B2, Is).
-rook_route(R, R2, Is) :- rook(R, R2, Is).
-king_route(K, K2) :- king(K, K2).
-
-
-ray_role(b).
-ray_role(n).
-ray_role(k).
-ray_role(q).
-ray_role(r).
-
-ray_member(Color-Role-Pos, B) :- ray_role(Role), member(Color-Role-Pos, B).
-
-
-
-
-
-
-
-checks(Q, QC, B, B2) :- queen_route(Q, QC, _), mobile(Q, QC, B, B2), queen_route(QC, K, _), capture(QC, K, B2, _).
+pawn_push(w-P, P2, Is) :- white_push(P, P2, Is).
+pawn_push(b-P, P2, Is) :- black_push(P, P2, Is).
 
 
 on(B, P) :- member(_-_-P, B).
@@ -151,14 +152,6 @@ take_pos(C-R-_, _-_-Pos, C-R-Pos).
 
 
 route_pass(Is, B2, M) :- include(on(Is), B2, M).
-
-
-queen_route(_-_-Q, _-_-Q2, Is) :- queen(Q, Q2, Is).
-
-
-
-
-
 
 
 right(a-b).
@@ -327,44 +320,42 @@ uci(b-Role) :- format('~a', Role).
 
 % https://stackoverflow.com/questions/72550199/how-to-sort-and-print-coordinates-of-a-chess-board-with-pieces-in-them/72553353?noredirect=1#comment128164848_72553353
 print_board(Board) :-
-    forall( member(Y, [8,7,6,5,4,3,2,1]),
-            ( findall(X-Piece, member(Piece-(X-Y), Board), Pieces),
-              print_row(Y, Pieces) ) ),
+  forall( member(Y, [8,7,6,5,4,3,2,1]),
+  ( findall(X-Piece, member(Piece-(X-Y), Board), Pieces),
+    print_row(Y, Pieces) ) ),
     format('\n  abcdefgh\n\n').
 
 print_row(Y, Pieces) :-
-    format('\n~w ', [Y]),
-    forall( member(X, [a,b,c,d,e,f,g,h]),
-            (   member(X-Piece, Pieces)
-            ->  uci(Piece)
-            ;   format('.') ) ).
+  format('\n~w ', [Y]),
+  forall( member(X, [a,b,c,d,e,f,g,h]),
+  (   member(X-Piece, Pieces)
+  ->  uci(Piece)
+  ;   format('.') ) ).
+
+
+initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
+
+fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, Turn, Castles, EnPassant, _, _]),
+   split_string(Pieses, "/", "", _Ranks),
+   maplist(string_chars, _Ranks, Ranks),
+ foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], B).
 
 
 
 
-board0([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
-board1([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
-board2([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
-board3([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
-board4([w-r-(f-8),w-k-(g-8),w-p-(a-7),w-p-(b-7),w-p-(h-7),w-p-(c-6),b-p-(e-6),w-p-(g-6),w-p-(d-5),b-n-(e-5),w-r-(f-4),b-p-(c-3),b-q-(h-3),b-p-(a-2),b-p-(b-2),b-p-(g-2),b-p-(h-2),b-k-(h-1),b-r-(f-1)]).
-board5([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
-board6([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
-board7([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
-board8([b-r-(c-8),b-k-(g-8),b-p-(a-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),b-p-(e-6),b-q-(f-6),w-p-(b-5),w-q-(c-4),w-p-(e-4),w-p-(f-4),w-p-(g-3),w-p-(a-2),w-b-(g-2),w-p-(h-2),w-r-(c-1),w-k-(g-1),b-b-(b-7)]).
-board9([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-p-(g-7),w-p-(b-5),b-p-(h-5),w-p-(a-3),b-n-(e-3),w-p-(h-3),w-p-(c-2),b-r-(e-2),w-p-(g-2),w-b-(a-1),w-n-(e-1),w-r-(f-1),w-k-(g-1),b-r-(d-1)]).
+rank_pieses(Chars, Rank, Rest, [Pieses|Rest]):- fold_rank(Rank, Chars, [a,b,c,d,e,f,g,h], Pieses).
 
 
 
-mateIn20([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
-mateIn21([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
-mateIn22([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
-mateIn23([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
-mateIn24([w-r-(c-8),w-p-(b-7),w-k-(e-7),w-p-(g-7),w-p-(h-7),w-p-(e-6),b-n-(b-5),w-p-(f-5),b-p-(f-4),b-p-(a-3),w-n-(d-3),b-p-(e-3),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(d-2)]).
-mateIn25([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
-mateIn26([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
-mateIn27([b-k-(h-8),b-p-(a-7),b-q-(c-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),w-q-(e-6),b-p-(g-6),w-n-(g-3),w-p-(a-2),w-p-(c-2),w-p-(g-2),w-k-(g-1),b-r-(f-3)]).
-mateIn28([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
-mateIn29([w-p-(f-7),w-r-(c-6),w-k-(d-6),w-b-(d-5),b-p-(h-4),b-p-(g-3),b-p-(f-2),b-k-(g-1),b-q-(h-7)]).
+fold_rank(Rank, [], [], _).
+% https://stackoverflow.com/questions/46676080/prolog-how-to-remove-n-number-of-members-from-a-list
+fold_rank(Rank, [_Rank|Rest], Files, SS) :- 
+  rank(_Rank),
+  length(RemoveFiles, _Rank),
+  append(RemoveFiles, _Files, Files),
+  fold_rank(Rank, Rest, _Files, SS).
 
 
+fold_rank(Rank, [Role|Rest], [File|FRest], [Role-File|SS]) :-
+  fold_rank(Rank, Rest, FRest, SS).
 
