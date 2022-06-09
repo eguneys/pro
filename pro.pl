@@ -18,116 +18,26 @@ color(green, Pos) :- green(Pos).
 color(blue, Pos) :- blue(Pos).
 color(yellow, Pos) :- yellow(Pos).
 
-board0([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
-board1([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
-board2([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
-board3([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
-board4([w-r-(f-8),w-k-(g-8),w-p-(a-7),w-p-(b-7),w-p-(h-7),w-p-(c-6),b-p-(e-6),w-p-(g-6),w-p-(d-5),b-n-(e-5),w-r-(f-4),b-p-(c-3),b-q-(h-3),b-p-(a-2),b-p-(b-2),b-p-(g-2),b-p-(h-2),b-k-(h-1),b-r-(f-1)]).
-board5([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
-board6([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
-board7([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
-board8([b-r-(c-8),b-k-(g-8),b-p-(a-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),b-p-(e-6),b-q-(f-6),w-p-(b-5),w-q-(c-4),w-p-(e-4),w-p-(f-4),w-p-(g-3),w-p-(a-2),w-b-(g-2),w-p-(h-2),w-r-(c-1),w-k-(g-1),b-b-(b-7)]).
-board9([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-p-(g-7),w-p-(b-5),b-p-(h-5),w-p-(a-3),b-n-(e-3),w-p-(h-3),w-p-(c-2),b-r-(e-2),w-p-(g-2),w-b-(a-1),w-n-(e-1),w-r-(f-1),w-k-(g-1),b-r-(d-1)]).
-
-
-
-mateIn20([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
-mateIn21([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
-mateIn22([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
-mateIn23([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
-mateIn24([w-r-(c-8),w-p-(b-7),w-k-(e-7),w-p-(g-7),w-p-(h-7),w-p-(e-6),b-n-(b-5),w-p-(f-5),b-p-(f-4),b-p-(a-3),w-n-(d-3),b-p-(e-3),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(d-2)]).
-mateIn25([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
-mateIn26([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
-mateIn27([b-k-(h-8),b-p-(a-7),b-q-(c-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),w-q-(e-6),b-p-(g-6),w-n-(g-3),w-p-(a-2),w-p-(c-2),w-p-(g-2),w-k-(g-1),b-r-(f-3)]).
-mateIn28([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
-mateIn29([w-p-(f-7),w-r-(c-6),w-k-(d-6),w-b-(d-5),b-p-(h-4),b-p-(g-3),b-p-(f-2),b-k-(g-1),b-q-(h-7)]).
-
-
 piece(X) :- boardX(B), member(X, B).
-
-/*
-(c-6)-(c-1) Rc1
-(g-1)-(h-2) Kh2
-(c-1)-(h-1) Rh1#
-*/
-
-
-uci(w-r) :- format('R').
-uci(w-q) :- format('Q').
-uci(w-k) :- format('K').
-uci(w-n) :- format('N').
-uci(w-b) :- format('B').
-uci(w-p) :- format('P').
-uci(b-Role) :- format('~a', Role).
-
-
-pretty(B) :- format('r k k \nhello~a', B).
-
-/*
-board([w-k-(a-2), b-q-(c-3), w-r-(a-1), b-b-(h-8)]).
-
-I want to print this like that:
-
-8       b
-7
-6
-5
-4
-3 q
-2K
-1R
- abcdefgh
-
-I have already written how to format pieces:
-
-uci(w-r) :- format('R').
-uci(w-q) :- format('Q').
-uci(w-k) :- format('K').
-uci(w-n) :- format('N').
-uci(w-b) :- format('B').
-uci(w-p) :- format('P').
-uci(b-Role) :- format('~a', Role).
-
-I just need to fill this in:
-pretty(B) :- format('r k k \nhello~a', B).
-
-
-So `?- board(B), pretty(B).` will print out the board.
-
-I thought B should be sorted by positions a-8 to h-1 .
-
-So how would I sort this array of pieces by the third pair.
-
-I also have this predicate fact of what is bigger:
-
-up(1-2).
-up(2-3).
-up(3-4).
-up(4-5).
-up(5-6).
-up(6-7).
-up(7-8).
-
-upper(X-Y, []) :- up(X-Y).
-upper(X-Y, [Z|Rest]) :- up(X-Z), upper(Z-Y, Rest).
-
-right(a-b).
-right(b-c).
-right(c-d).
-right(d-e).
-right(e-f).
-right(f-g).
-right(g-h).
-
-righter(X-Y, []) :- right(X-Y).
-righter(X-Y, [Z|Rest]) :- right(X-Z), righter(Z-Y, Rest).
-
-bigger(X-Y,X_-Y_) :- upper(Y-Y_); Y=Y_, righter(X-X_).
-
-*/
 
 
 boardI(B) :- mateIn25(B).
+
+boardX(X) :- boardI(X).
+
+boardR([w-r-(d-5), b-b-(f-5), b-k-(b-2)]).
+
+
+mobile_ray(O, D, B, B2) :- 
+member(Color-Role-O, B),
+ray_route(Role-O, D, Is), 
+maplist(off(B), Is),
+mobile(Color-Role-O, Color-Role-D, B, B2).
+
+
+off(B, X) :- \+ on(B, X).
+
+print_boardM(B, P) :- findall(D, mobile_ray(P, D, B, _), Bs), findall(a-x-X, member(X, Bs), Bss), foldl(drop, Bss, B, Res), print_board(Res).
 
 
 lsX([
@@ -139,22 +49,6 @@ lsX([
 ]).
 
 ls(Ls) :- boardI(B), lsX(Ls), foldl(run, Ls, B, BL).
-
-
-/*
-
-yellow(X) :-
-  boardX(B),
-  O=w-R-PO,
-  D=w-R-PD,
-  ray_member(O, B),
-  ray_route(R-PO, PD, _),
-  mobile(O, D, B, B2),
-  ray_member(w-R-PD, B2),
-  ray_route(R-PD, C, _),
-  capture(w-R-PD, b-k-C, B2, _),
-  X=PD.
-*/
 
 
 run(check_ray(O-D, C), B, B2) :-
@@ -206,69 +100,6 @@ run(mate(K), B, B) :-
 .
 
 
-yellow(X) :- 
-  boardX(B),
-  member(b-k-KP, B),
-  capture(w-R-MP, b-k-KP, B, _),
-  ray_route(R-MP, KP, _),
-  king_route(KP, Flee),
-  X=Flee,
-  mobile(b-k-KP, b-k-Flee, B, B2),
-\+ (
-  ray_route(R2-FC, Flee, _),
-  capture(w-R2-FC, b-k-Flee, B2, _)
-)
-.
-
-
-
-board_2(BOut) :- boardI(B), 
-pickup(b-k-(g-1), B, B2),
-pickup(w-r-(c-6), B2, B3),
-drop(b-k-(h-2), B3, B4),
-drop(w-r-(h-1), B4, BOut).
-
-boardX(X) :- boardI(X).
-
-
-
-/*
-orange(X) :- boardX(B),
-member(b-k-KP, B),
-king_route(KP, Flee),
-mobile(b-k-KP, b-k-Flee, B, BFLee),
-X=Flee. 
-*/
-
-/*
-piece(X) :- boardX(B),
-ray_member(b-k-KP, B),
-king_route(KP, Flee),
-mobile(b-k-KP, b-k-Flee, B, BFlee),
-\+ (
-ray_member(w-R-RP, BFlee),
-ray_route(R-RP, Flee, _)
-),
-member(X, BFlee).
-*/
-
-
-king_at(X, B) :- boardX(B), member(b-k-X, B).
-king_flee(K, Flee, B) :- king_at(K, B), king_route(K, Flee).
-pawn_at(P, B) :- boardX(B), member(b-p-P, B).
-
-rook_At(X, B) :- boardX(B), member(w-r-X, B).
-
-rook_Check(R, B, CAt, C) :- 
-rook_At(R, B), 
-rook_route(R, CAt, _),
-rook_route(CAt, C, _).
-
-white(Flee) :- king_flee(K, Flee, B), \+ pawn_at(Flee, B).
-%green(Flee) :- king_flee(K, Flee, B), pawn_at(Flee, B).
-
-red(CAt) :- king_at(K, B), findall(Flee, white(Flee), Flees), rook_Check(R, B, CAt, K), maplist(rook_Check(R, B, CAt), Flees).
-
 
 
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
@@ -297,9 +128,7 @@ ray_member(Color-Role-Pos, B) :- ray_role(Role), member(Color-Role-Pos, B).
 checks(Q, QC, B, B2) :- queen_route(Q, QC, _), mobile(Q, QC, B, B2), queen_route(QC, K, _), capture(QC, K, B2, _).
 
 
-
-
-
+on(B, P) :- member(_-_-P, B).
 
 mobile(P, P2, B, BOut) :- \+ same_pos(P, P2), pickup(P, B, B2), drop(P2, B2, BOut).
 
@@ -321,7 +150,6 @@ take_pos(C-R-_, _-_-Pos, C-R-Pos).
 
 
 
-on(Is, _-_-X) :- member(X, Is).
 route_pass(Is, B2, M) :- include(on(Is), B2, M).
 
 
@@ -482,4 +310,61 @@ black_push(X, Y, N) :- \+ black_base(X), (black_home(X), bck2(X, Y, N); backward
 black_capture(X, Y) :- \+ black_base(X), (bck_kng(X, Y, []); bck_que(X, Y, [])).
 black_en_passant(X, Y, C) :- white_home2(X), black_capture(X, Y), forward(Y, C, []).
 black_promote(X) :- white_home(X).
+
+
+
+
+
+uci(a-X) :- format('~a', X).
+uci(w-r) :- format('R').
+uci(w-q) :- format('Q').
+uci(w-k) :- format('K').
+uci(w-n) :- format('N').
+uci(w-b) :- format('B').
+uci(w-p) :- format('P').
+uci(b-Role) :- format('~a', Role).
+
+
+% https://stackoverflow.com/questions/72550199/how-to-sort-and-print-coordinates-of-a-chess-board-with-pieces-in-them/72553353?noredirect=1#comment128164848_72553353
+print_board(Board) :-
+    forall( member(Y, [8,7,6,5,4,3,2,1]),
+            ( findall(X-Piece, member(Piece-(X-Y), Board), Pieces),
+              print_row(Y, Pieces) ) ),
+    format('\n  abcdefgh\n\n').
+
+print_row(Y, Pieces) :-
+    format('\n~w ', [Y]),
+    forall( member(X, [a,b,c,d,e,f,g,h]),
+            (   member(X-Piece, Pieces)
+            ->  uci(Piece)
+            ;   format('.') ) ).
+
+
+
+
+board0([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
+board1([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
+board2([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
+board3([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
+board4([w-r-(f-8),w-k-(g-8),w-p-(a-7),w-p-(b-7),w-p-(h-7),w-p-(c-6),b-p-(e-6),w-p-(g-6),w-p-(d-5),b-n-(e-5),w-r-(f-4),b-p-(c-3),b-q-(h-3),b-p-(a-2),b-p-(b-2),b-p-(g-2),b-p-(h-2),b-k-(h-1),b-r-(f-1)]).
+board5([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
+board6([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
+board7([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
+board8([b-r-(c-8),b-k-(g-8),b-p-(a-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),b-p-(e-6),b-q-(f-6),w-p-(b-5),w-q-(c-4),w-p-(e-4),w-p-(f-4),w-p-(g-3),w-p-(a-2),w-b-(g-2),w-p-(h-2),w-r-(c-1),w-k-(g-1),b-b-(b-7)]).
+board9([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-p-(g-7),w-p-(b-5),b-p-(h-5),w-p-(a-3),b-n-(e-3),w-p-(h-3),w-p-(c-2),b-r-(e-2),w-p-(g-2),w-b-(a-1),w-n-(e-1),w-r-(f-1),w-k-(g-1),b-r-(d-1)]).
+
+
+
+mateIn20([b-k-(h-8),b-p-(a-7),b-b-(b-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),b-p-(f-5),w-p-(d-4),w-p-(a-2),w-p-(b-2),w-p-(c-2),w-p-(f-2),w-p-(g-2),w-p-(h-2),w-r-(e-1),w-k-(g-1),b-r-(f-7)]).
+mateIn21([w-r-(e-8),w-k-(g-8),w-p-(a-7),w-p-(f-7),w-p-(g-7),w-p-(h-7),b-p-(a-2),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(a-1),b-r-(d-2)]).
+mateIn22([b-k-(b-8),b-p-(a-7),b-p-(b-7),b-p-(c-7),b-r-(g-7),w-p-(a-5),b-b-(c-5),w-r-(e-4),w-p-(h-3),w-p-(b-2),w-p-(c-2),w-r-(a-1),w-k-(h-1),b-r-(d-2)]).
+mateIn23([b-r-(b-8),b-b-(c-8),b-p-(a-7),b-p-(g-7),b-p-(h-7),b-p-(b-6),w-r-(d-5),w-b-(c-4),b-p-(e-4),w-p-(a-2),w-p-(b-2),b-r-(f-2),w-p-(g-2),w-p-(h-2),w-k-(b-1),w-r-(h-1),b-k-(h-8)]).
+mateIn24([w-r-(c-8),w-p-(b-7),w-k-(e-7),w-p-(g-7),w-p-(h-7),w-p-(e-6),b-n-(b-5),w-p-(f-5),b-p-(f-4),b-p-(a-3),w-n-(d-3),b-p-(e-3),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(d-2)]).
+mateIn25([w-r-(d-8),w-p-(a-7),w-k-(c-7),w-q-(g-7),w-p-(b-6),w-p-(e-6),w-p-(h-6),w-p-(c-5),w-n-(e-5),w-p-(g-5),b-p-(c-4),b-n-(e-4),b-p-(a-3),b-q-(g-3),b-p-(b-2),b-p-(f-2),b-p-(g-2),b-p-(h-2),b-k-(g-1),b-r-(e-3)]).
+mateIn26([b-r-(d-8),b-k-(g-8),b-n-(e-7),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-p-(a-6),b-q-(b-6),b-b-(f-6),b-p-(b-5),b-r-(c-4),w-p-(f-4),w-p-(c-3),w-n-(e-3),w-r-(f-3),w-p-(a-2),w-p-(b-2),w-q-(d-2),w-b-(g-2),w-p-(h-2),w-r-(d-1),w-k-(g-1),b-p-(e-5)]).
+mateIn27([b-k-(h-8),b-p-(a-7),b-q-(c-7),b-p-(g-7),b-p-(h-7),b-p-(c-6),w-q-(e-6),b-p-(g-6),w-n-(g-3),w-p-(a-2),w-p-(c-2),w-p-(g-2),w-k-(g-1),b-r-(f-3)]).
+mateIn28([b-k-(g-8),b-p-(f-7),b-p-(g-7),b-p-(h-7),b-r-(e-5),w-p-(f-5),w-p-(g-4),w-r-(c-3),w-k-(d-3),w-p-(h-3),w-b-(h-1),b-r-(b-5)]).
+mateIn29([w-p-(f-7),w-r-(c-6),w-k-(d-6),w-b-(d-5),b-p-(h-4),b-p-(g-3),b-p-(f-2),b-k-(g-1),b-q-(h-7)]).
+
+
 
