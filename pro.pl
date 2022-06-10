@@ -45,6 +45,26 @@ run(B, OD, Ls) :- foldl(mobile_situation, OD, w-B, Ls).
 
 run_to_depth(F, D, C) :- length(OD, D), fen_board(F, B), findall(Ls, run(B, OD, Ls), Lss), length(Lss, C).
 
+bs_ods(_, _, []).
+bs_ods(T, [B,B2|Bs], [OD|ODs]) :- 
+  r_check(T-B, OD, T2-B2), opposite(T, T2), bs_ods(T2, [B2|Bs], ODs).
+
+/*
+
+w-B  b-B2  w-B3  b-B4 ..
+   O-D   O-D   O-D  
+
+*/
+
+r_check(T-B, O-D, T2-B2) :- 
+  on_color(B, T, O),
+  on_color(B2, T2, K),
+  on_king(B2, K),
+  (
+    capture_ray(D-K, B2, _) ;
+    capture_pawn(D-K, B2, _)
+  ).
+
 
 
 mobile_ray(O-D, B, B2) :- 
@@ -95,6 +115,7 @@ opposite(b,w).
 
 on(B, P) :- member(_-_-P, B).
 on_color(B, Color, P) :- member(Color-_-P, B).
+on_king(B, P) :- member(_-k-P, B).
 
 mobile(P, P2, B, BOut) :- \+ same_pos(P, P2), pickup(P, B, B2), drop(P2, B2, BOut).
 
