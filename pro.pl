@@ -338,24 +338,66 @@ initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
 fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, Turn, Castles, EnPassant, _, _]),
    split_string(Pieses, "/", "", _Ranks),
    maplist(string_chars, _Ranks, Ranks),
- foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], B).
+ foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
+ foldl(append, BB, [], B).
 
 
 
 
-rank_pieses(Chars, Rank, Rest, [Pieses|Rest]):- fold_rank(Rank, Chars, [a,b,c,d,e,f,g,h], Pieses).
+rank_pieses(Chars, Rank, Rest, [Pieses|Rest]):- 
+  fold_rank(Rank, Chars, [a,b,c,d,e,f,g,h], Pieses).
+
+
+n('1', 1).
+n('2', 2).
+n('3', 3).
+n('4', 4).
+n('5', 5).
+n('6', 6).
+n('7', 7).
+n('8', 8).
+
+char_role('k', k).
+char_role('b', b).
+char_role('n', n).
+char_role('q', q).
+char_role('r', r).
+char_role('p', p).
+char_role('K', k).
+char_role('B', b).
+char_role('N', n).
+char_role('Q', q).
+char_role('R', r).
+char_role('P', p).
+
+
+char_color('k', b).
+char_color('b', b).
+char_color('n', b).
+char_color('q', b).
+char_color('r', b).
+char_color('p', b).
+char_color('K', w).
+char_color('B', w).
+char_color('N', w).
+char_color('Q', w).
+char_color('R', w).
+char_color('P', w).
 
 
 
-fold_rank(Rank, [], [], _).
+fold_rank(Rank, [], [], []).
 % https://stackoverflow.com/questions/46676080/prolog-how-to-remove-n-number-of-members-from-a-list
-fold_rank(Rank, [_Rank|Rest], Files, SS) :- 
-  rank(_Rank),
-  length(RemoveFiles, _Rank),
-  append(RemoveFiles, _Files, Files),
-  fold_rank(Rank, Rest, _Files, SS).
-
-
-fold_rank(Rank, [Role|Rest], [File|FRest], [Role-File|SS]) :-
-  fold_rank(Rank, Rest, FRest, SS).
-
+fold_rank(Rank, [Char|Rest], Files, SS) :- 
+  (n(Char, RRank)
+  -> (
+    length(RemoveFiles, RRank),
+    append(RemoveFiles, FFiles, Files),
+    fold_rank(Rank, Rest, FFiles, SS)
+  ) ; (
+  Files = [File|FRest],
+  char_role(Char, Role),
+  char_color(Char, Color),
+  SS=[Color-Role-(File-Rank)|SSRest],
+  fold_rank(Rank, Rest, FRest, SSRest)
+)).
