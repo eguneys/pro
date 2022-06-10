@@ -29,18 +29,21 @@ boardR([w-r-(d-5), b-b-(f-5), b-k-(b-2)]).
 
 
 
-situation_orig_dest(T-B, O-D, T2-B2) :-
+mobile_situation(O-D, T-B, T2-B2) :-
   on_color(B, T, O),
-  (mobile_ray(O-D, B, B2) ; mobile_pawn(O-D, B, B2)),
+  (
+    mobile_ray(O-D, B, B2) ; 
+    mobile_pawn(O-D, B, B2) ;
+    capture_ray(O-D, B, B2) ;
+    capture_pawn(O-D, B, B2)
+  ),
   opposite(T,T2).
 
 
+run(B, OD, Ls) :- foldl(mobile_situation, OD, w-B, Ls).
 
 
-opposite(w,b).
-opposite(b,w).
-
-
+run_to_depth(F, D, C) :- length(OD, D), fen_board(F, B), findall(Ls, run(B, OD, Ls), Lss), length(Lss, C).
 
 
 
@@ -56,6 +59,21 @@ mobile_pawn(O-D, B, B2) :-
   maplist(off(B), Is),
   mobile(Color-p-O, Color-p-D, B, B2).
 
+capture_ray(O-D, B, B2) :-
+  member(Color-Role-O, B),
+  ray_route(Role-O, D, Is), 
+  maplist(off(B), Is),
+  opposite(Color, Op),
+  capture(Color-Role-O, Op-_-D, B, B2).
+
+
+capture_pawn(O-D, B, B2) :-
+  member(Color-p-O, B),
+  pawn_capture(Color-O, D),
+  opposite(Color, Op),
+  capture(Color-p-O, Op-_-D, B, B2).
+
+
 
 off(B, X) :- \+ on(B, X).
 
@@ -69,6 +87,11 @@ ray_route(k-P, P2, []) :- king(P, P2).
 pawn_push(w-P, P2, Is) :- white_push(P, P2, Is).
 pawn_push(b-P, P2, Is) :- black_push(P, P2, Is).
 
+pawn_capture(w-P, P2) :- white_capture(P, P2).
+pawn_capture(b-P, P2) :- black_capture(P, P2).
+
+opposite(w,b).
+opposite(b,w).
 
 on(B, P) :- member(_-_-P, B).
 on_color(B, Color, P) :- member(Color-_-P, B).
@@ -291,7 +314,11 @@ print_row(Y, Pieces) :-
 
 initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
 
-fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, _, _, _, _, _]),
+kiwipete("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ").
+pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
+
+
+fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, _, _, _ |_]),
    split_string(Pieses, "/", "", RRanks),
    maplist(string_chars, RRanks, Ranks),
  foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
