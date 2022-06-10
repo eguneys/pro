@@ -88,7 +88,7 @@ Think about `right2(a-c).`, c is 2 right to a, as if there is a B where `right(a
 right2(X-Y) :- right(X-Z), right(Z-Y).
 ```
 
-So  ,  is `logical and` we can use to chain facts, as we wish.
+So   ,   is `logical and` we can use to chain facts, as we wish.
 
 
 `?- right2(X-Y)`, see similar answers to `right` except for 2 to the right.
@@ -210,7 +210,7 @@ Also note that `?- forward(a-4, b-8, Ls)` is false. Because we only covered coor
 
 Now ask `?- forward(a-4, X, _).`, see it enumerates coordinates forward of a-4, no matter what's in between, `X = a-5 ; X = a-6 ; X = a-7 ; X = a-8`.
 
-We can go straight forward or backward, or laterally left and right with what we have learned. They are called `forward(X, Y, Ls)`, `backward(X, Y, Ls)`, `king_side(X, Y, Ls)`, and `queen_side(X, Y, Ls)` and left as an exercise.
+We can go straight forward or backward, or laterally left and right with what we have learned. They are called `forward(X, Y, Ls)`, `backward(X, Y, Ls)`, `king_side(X, Y, Ls)`, and `queen_side(X, Y, Ls)` and they are left as an exercise.
 
 
 Let's think how we can find coordinates in diagonal direction. For example: 
