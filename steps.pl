@@ -136,3 +136,19 @@ king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
 queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
 
 
+
+% Section 5
+
+
+boardR([w-k-(e-4), b-r-(c-5), w-p-(a-2)]).
+
+
+pickup(P, [P|B2], B2).
+pickup(P, [X|Rest], [X|Rest2]) :- pickup(P, Rest, Rest2).
+
+
+drop(P, [], [P]).
+drop(P, [X|Rest], [X|Ls]) :- \+ same_pos(P, X), drop(P, Rest, Ls).
+
+same_pos(_-_-Pos, _-_-Pos).
+

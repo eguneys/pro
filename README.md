@@ -135,6 +135,7 @@ Something regular:
 
 ### Exercises for Section 1-3
 
+<sub> You can skip the exercises, all definitions covered in this article are in the file [steps.pl](steps.pl). Look them up, or just use `?- consult(steps).` to import them. </sub>
 
 Define these facts:
 
@@ -325,7 +326,94 @@ queen(X, Y, N) :- % queen(a-4, d-4, [b-4, c-4]), queen(a-4, b-3, []).
 ```
 
 
-### Section 5 - Tell some chess pieces on a chess board
+### Section 5 - Drop some chess pieces on a chess board
+
+Now we have the coordinates and directions, putting pieces on the board is easy as we wish:
+
+```pl
+boardR([w-k-(e-4), b-r-(c-5), w-p-(a-2)]).
+```
+
+`?- boardR(Ls).` , see it returns the pieces in a list.
+
+The elements in the list has a structure as `Color-Role-(File-Rank)`. Note that we have three pairings with a dash.
+The structure can also be seen as `Color-Role-Pos`, where Pos is another structure like `File-Rank`.
+
+Order doesn't matter, but let's just see the first piece we can get from this list:
+
+`?- boardR([P|_]).` , see it returns `H = w-k-(e-4).`. You can further disect the piece to its Color, Role, or Position.
+
+Experiment like `?- boardR([Color-Role-Pos|_]).`. 
+
+The built-in `member/2` function has a structure `member(X, Ls)`. It returns all members of list Ls as X. For example:
+
+Try, `?- member(X, [1,2,3]).`, see it returns `X = 1 ; X = 2; X = 3 ;`.
+
+We can ask for white pieces with this function:
+
+`?- boardR(Ls), member(w-Color-Pos, Ls)` , see it returns `Color = k , Pos = e-4 ; Color = p , Pos = a-2.` meaning, white king at e4, and white pawn on a2. 
+
+Note that it returns false for `?- boardR(Ls), member(w-X, Ls)` . So it doesn't unify X with Color and Pos as a pair.
+
+How do we move pieces around. Simply, how do we pickup a piece from, and drop a piece to this board.
+
+We use the list accumulation with recursion technique:
+
+Base case: 
+```pl
+pickup(P, [P|B2], B2).
+```
+
+Given a piece P, and a board that has P as the first piece, and rest of the pieces as B2, we give B2 as output. Note that the last argument B2 is the output, that returns the board with the piece removed. Second argument is the original board that has the piece to be removed.
+
+Recursive case:
+```pl
+pickup(P, [X|Rest], [X|Rest2]) :- pickup(P, Rest, Rest2).
+```
+
+This says if there is a piece X, that is not a P (implicitly true, because base case covers if X is a P), try pickup from the rest of the list.
+
+Note that, we don't cover the empty list, which would eventually happen if it cannot find the piece in the board, in that case it returns false, because there is no rule that says it shall be true. So it will return false if we pickup a piece that doesn't exist, which is ok.
 
 
+Let's use it, `?- boardR(R), pickup(w-k-(e-4), R, R2).` , see `R2 = [b-r-(c-5), w-p-(a-2)]`, and we try to remove a piece that doesn't exist, `?- boardR(R), pickup(w-r-(e-4), R, R2).` , see it returns false.
 
+Base case for dropping a piece on the board is simple:
+
+```pl
+drop(P, [], [P]).
+```
+
+Dropping a piece on an empty list is the list with just the piece as the single element.
+
+Recursive case:
+```pl
+drop(P, [X|Rest], [X|Ls]) :- \+ same_pos(P, X), drop(P, Rest, Ls).
+```
+
+`\+` is the `logical not` which generally should be used with caution, but it's ok for our use case.
+
+There is also definition as, `same_pos(_-_-Pos, _-_-Pos).`. This would return true if two pieces has the same position. For example `?- same_pos(w-r-(a-4), b-k-(a-4)).` would return true.
+
+So we recursively check all elements of the list, checking if it has the same position with every element, and only when all return false, then we drop the piece as we reach the base case.
+
+If you are confused by this recursive technique, just remember they all have the same principle.
+
+Now for fun, there is some utility to pretty print these boards on the repl. They are defined in [steps_util.pl](steps_util.pl) and used like this:
+
+`?- boardR(R), print_board(R).` , see the board printed with ascii characters.
+
+<sub> The definitions are taken from this [SO question](https://stackoverflow.com/questions/72550199/how-to-sort-and-print-coordinates-of-a-chess-board-with-pieces-in-them), use `?- consult(steps_util).` to make them available in the repl. </sub>
+
+
+Drop some pieces and print the resulting board:
+
+`?- boardR(R), drop(w-n-(a-8), R, R2), print_board(R2).` , see the white knight on a8 on the resulting board.
+
+Note that you can chain multiple drops (also pickups) manually like `drop(P, R, R2), drop(P2, R2, R3), %...` , or if you have a list of pieces to drop, you can use `foldl` over that list and give the initial board, and let the `foldl` chain the boards implicitly. Like this:
+
+`?- boardR(B), foldl(drop, [b-p-(a-7), b-p-(b-7), b-p-(c-7)], B, BOut), print_board(BOut).` , see the black pawns on the seventh rank.
+
+Just a demonstration of `foldl` which will be used in later sections.
+
+### Section 6 - 
