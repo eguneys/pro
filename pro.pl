@@ -1,32 +1,3 @@
-:- dynamic(white/1).
-:- dynamic(orange/1).
-:- dynamic(black/1).
-
-:- dynamic(red/1).
-:- dynamic(green/1).
-:- dynamic(blue/1).
-:- dynamic(yellow/1).
-
-list([]).
-
-color(white, Pos) :- white(Pos).
-color(orange, Pos) :- orange(Pos).
-color(black, Pos) :- black(Pos).
-
-color(red, Pos) :- red(Pos).
-color(green, Pos) :- green(Pos).
-color(blue, Pos) :- blue(Pos).
-color(yellow, Pos) :- yellow(Pos).
-
-piece(X) :- boardX(B), member(X, B).
-
-
-boardI(B) :- boardR(B).
-
-boardX(X) :- boardI(X).
-
-boardR([w-r-(d-5), b-b-(f-5), b-k-(b-2)]).
-
 
 
 mobile_situation(O-D, T-B, T2-B2) :-
@@ -45,25 +16,30 @@ run(B, OD, Ls) :- foldl(mobile_situation, OD, w-B, Ls).
 
 run_to_depth(F, D, C) :- length(OD, D), fen_board(F, B), findall(Ls, run(B, OD, Ls), Lss), length(Lss, C).
 
-bs_ods(_, _, []).
-bs_ods(T, [B,B2|Bs], [OD|ODs]) :- 
-  r_check(T-B, OD, T2-B2), opposite(T, T2), bs_ods(T2, [B2|Bs], ODs).
 
-/*
+r_run(B, OD, Ls) :- foldl(r_check, OD, w-B, Ls).
 
-w-B  b-B2  w-B3  b-B4 ..
-   O-D   O-D   O-D  
-
-*/
-
-r_check(T-B, O-D, T2-B2) :- 
+r_check(O-D, T-B, T2-B2) :- 
   on_color(B, T, O),
+  mobile_situation(O-D, T-B, T2-B2),
   on_color(B2, T2, K),
   on_king(B2, K),
   (
     capture_ray(D-K, B2, _) ;
     capture_pawn(D-K, B2, _)
   ).
+
+
+mate_in_1(O-D, T-B, T2-B2) :-
+  r_check(O-D, T-B, T2-B2).
+
+
+
+check_all_mates :- mate_in_all(Ls), maplist(check_mate_in_1, Ls).
+
+check_mate_in_1(D) :- data_b_od(D, TB, [OD, OD2]), 
+mobile_situation(OD, TB, TB2), 
+mate_in_1(OD2, TB2, _).
 
 
 
@@ -306,6 +282,7 @@ print_boardPM(B, P) :-
   foldl(drop, Bss, B, Res), 
   print_board(Res).
 
+print_tb(T-B) :- print_board(B), format("~a to play", T).
 
 
 uci(a-X) :- format('~a', X).
@@ -323,7 +300,7 @@ print_board(Board) :-
   forall( member(Y, [8,7,6,5,4,3,2,1]),
   ( findall(X-Piece, member(Piece-(X-Y), Board), Pieces),
     print_row(Y, Pieces) ) ),
-    format('\n  abcdefgh\n\n').
+    format('\n  abcdefgh\n').
 
 print_row(Y, Pieces) :-
   format('\n~w ', [Y]),
@@ -339,7 +316,8 @@ kiwipete("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ").
 pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
 
 
-fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, _, _, _ |_]),
+fen_board(Fen, T-B) :- split_string(Fen, " ", "", [Pieses, Turn, _, _ |_]),
+   uci_turn(Turn, T),
    split_string(Pieses, "/", "", RRanks),
    maplist(string_chars, RRanks, Ranks),
  foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
@@ -351,6 +329,8 @@ fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, _, _, _ |_]),
 rank_pieses(Chars, Rank, Rest, [Pieses|Rest]):- 
   fold_rank(Rank, Chars, [a,b,c,d,e,f,g,h], Pieses).
 
+uci_turn("w", w).
+uci_turn("b", b).
 
 n('1', 1).
 n('2', 2).
@@ -405,3 +385,32 @@ fold_rank(Rank, [Char|Rest], Files, SS) :-
   SS=[Color-Role-(File-Rank)|SSRest],
   fold_rank(Rank, Rest, FRest, SSRest)
 )).
+
+
+data_b_od(Data, B-T, ODs) :- data_fen(Data, Fen, Moves, _), fen_board(Fen, B-T), moves_od(Moves, ODs).
+
+data_fen(Data, Fen, Moves, Id) :- split_string(Data, ",", "", [Id, Fen, Moves]).
+
+moves_od(Moves, ODs) :- split_string(Moves, " ", "", Ls),
+maplist(string_chars, Ls, Lss),
+maplist(uci_od, Lss, ODs).
+
+uci_od([OF,OR,DF,DR], OFF-ORR-(DFF-DRR)) :- uci_file(OF, OFF), uci_rank(OR, ORR), uci_file(DF, DFF), uci_rank(DR, DRR).
+
+uci_file('a', a).
+uci_file('b', b).
+uci_file('c', c).
+uci_file('d', d).
+uci_file('e', e).
+uci_file('f', f).
+uci_file('g', g).
+uci_file('h', h).
+
+uci_rank('1', 1).
+uci_rank('2', 2).
+uci_rank('3', 3).
+uci_rank('4', 4).
+uci_rank('5', 5).
+uci_rank('6', 6).
+uci_rank('7', 7).
+uci_rank('8', 8).
