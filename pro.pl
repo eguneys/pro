@@ -28,13 +28,29 @@ boardX(X) :- boardI(X).
 boardR([w-r-(d-5), b-b-(f-5), b-k-(b-2)]).
 
 
-mobile_ray(O, D, B, B2) :- 
+
+situation_orig_dest(T-B, O-D, T2-B2) :-
+  on_color(B, T, O),
+  (mobile_ray(O-D, B, B2) ; mobile_pawn(O-D, B, B2)),
+  opposite(T,T2).
+
+
+
+
+opposite(w,b).
+opposite(b,w).
+
+
+
+
+
+mobile_ray(O-D, B, B2) :- 
 member(Color-Role-O, B),
 ray_route(Role-O, D, Is), 
 maplist(off(B), Is),
 mobile(Color-Role-O, Color-Role-D, B, B2).
 
-mobile_pawn(O, D, B, B2) :-
+mobile_pawn(O-D, B, B2) :-
   member(Color-p-O, B),
   pawn_push(Color-O, D, Is),
   maplist(off(B), Is),
@@ -42,81 +58,6 @@ mobile_pawn(O, D, B, B2) :-
 
 
 off(B, X) :- \+ on(B, X).
-
-print_boardM(B, P) :- 
-  findall(D, mobile_ray(P, D, B, _), Bs), 
-  findall(a-x-X, member(X, Bs), Bss), 
-  foldl(drop, Bss, B, Res), 
-  print_board(Res).
-
-print_boardPM(B, P) :-
-  findall(D, mobile_pawn(P, D, B, _), Bs), 
-  findall(a-x-X, member(X, Bs), Bss), 
-  foldl(drop, Bss, B, Res), 
-  print_board(Res).
-
-
-
-lsX([
-  ok(b-k-KP),
-  check_ray(O-D, KP),
-  flee(b-k-KP, b-k-Flee),
-  check_ray(D-M, Flee),
-  mate(b-k-KP)
-]).
-
-ls(Ls) :- boardI(B), lsX(Ls), foldl(run, Ls, B, BL).
-
-
-run(check_ray(O-D, C), B, B2) :-
-  ray_member(O, B),
-  O=w-R-PO,
-  D=w-R-PD,
-  ray_route(R-PO, PD, _),
-  mobile(O, D, B, B2),
-  ray_member(w-R-PD, B2),
-  ray_route(R-PD, C, _),
-  capture(w-R-PD, b-k-C, B2, _).
-
-run(ok(X), B, B) :- member(X, B).
-run(check(O-D, C), B, B2) :- 
-member(O, B),
-D=w-r-PD,
-O=w-r-PO,
-rook_route(PO, PD, _),
-mobile(O, D, B, B2),
-rook_route(PD, C, _).
-
-run(flee(K, Flee), B, B2):-
-member(b-k-KP, B),
-K=b-k-PK,
-Flee=b-k-FK,
-king_route(PK, FK),
-mobile(K, Flee, B, B2),
-\+ (member(w-b-BP, B2),
-  bishop_route(BP, FK, _),
-  capture(w-b-BP, b-k-FK, B2, _)),
-\+ (member(w-r-RP, B2),
-  rook_route(RP, FK, _),
-  capture(w-r-RP, b-k-FK, B2, _)).
-
-
-
-run(mate(K), B, B) :-
-  member(b-k-KP, B),
-
-  capture(w-R-MP, b-k-KP, B, _),
-  ray_route(R-MP, KP, _),
-\+ (
-  king_route(KP, Flee),
-  mobile(b-k-KP, b-k-Flee, B, BFlee),
-\+ (ray_route(R2-FC, Flee, _),
-  capture(w-R2-FC, b-k-Flee, BFlee, _)
-)
-)
-.
-
-
 
 
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
@@ -130,6 +71,7 @@ pawn_push(b-P, P2, Is) :- black_push(P, P2, Is).
 
 
 on(B, P) :- member(_-_-P, B).
+on_color(B, Color, P) :- member(Color-_-P, B).
 
 mobile(P, P2, B, BOut) :- \+ same_pos(P, P2), pickup(P, B, B2), drop(P2, B2, BOut).
 
@@ -308,6 +250,20 @@ black_promote(X) :- white_home(X).
 
 
 
+print_boardM(B, P) :- 
+  findall(D, mobile_ray(P, D, B, _), Bs), 
+  findall(a-x-X, member(X, Bs), Bss), 
+  foldl(drop, Bss, B, Res), 
+  print_board(Res).
+
+print_boardPM(B, P) :-
+  findall(D, mobile_pawn(P, D, B, _), Bs), 
+  findall(a-x-X, member(X, Bs), Bss), 
+  foldl(drop, Bss, B, Res), 
+  print_board(Res).
+
+
+
 uci(a-X) :- format('~a', X).
 uci(w-r) :- format('R').
 uci(w-q) :- format('Q').
@@ -335,9 +291,9 @@ print_row(Y, Pieces) :-
 
 initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
 
-fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, Turn, Castles, EnPassant, _, _]),
-   split_string(Pieses, "/", "", _Ranks),
-   maplist(string_chars, _Ranks, Ranks),
+fen_board(Fen, B) :- split_string(Fen, " ", "", [Pieses, _, _, _, _, _]),
+   split_string(Pieses, "/", "", RRanks),
+   maplist(string_chars, RRanks, Ranks),
  foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
  foldl(append, BB, [], B).
 
@@ -386,7 +342,7 @@ char_color('P', w).
 
 
 
-fold_rank(Rank, [], [], []).
+fold_rank(_, [], [], []).
 % https://stackoverflow.com/questions/46676080/prolog-how-to-remove-n-number-of-members-from-a-list
 fold_rank(Rank, [Char|Rest], Files, SS) :- 
   (n(Char, RRank)
