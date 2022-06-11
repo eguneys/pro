@@ -10,6 +10,11 @@ mobile_situation(O-D, T-B, T2-B2) :-
   ),
   opposite(T,T2).
 
+mobile_or_capture(O-D, B-B2) :- 
+  mobile_ray(O-D, B, B2) ; 
+  mobile_pawn(O-D, B, B2) ;
+  capture_ray(O-D, B, B2) ;
+  capture_pawn(O-D, B, B2).
 
 run(B, OD, Ls) :- foldl(mobile_situation, OD, w-B, Ls).
 
@@ -42,6 +47,58 @@ mobile_situation(OD, TB, TB2),
 mate_in_1(OD2, TB2, _).
 
 
+check_br_one(TB2-ODs) :- 
+  backranks([TB-[OD|ODs]|_]),
+  mobile_situation(OD, TB, TB2).
+
+check_brs_tbod(TB-[OD|_], TB4) :-
+  mobile_situation(OD, TB, TB2),
+  backrank_mate(TB2, _, TB4).
+
+
+hello:- backranks(Ls), member(TBOD, Ls), check_brs_tbod(TBOD, B4), print_tb(B4).
+
+
+backrank_mate(T-B, O-D, T4-B4) :-
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  interpose_check(T2-B2, D-K, OI-DI, T3-B3),
+  \+ OI = K,
+  mobile_situation(D-DI, T3-B3, T4-B4).
+
+
+interpose_check(T-B, O-D, OI-DI, T2-B2) :-
+  mobile_or_capture(O-D, B-_),
+  mobile_situation(OI-DI, T-B, T2-B2),
+  \+ mobile_situation(O-D, T2-B2, _).
+
+check_king(T-B, K, O-D, T2-B2) :- 
+  mobile_situation(O-D, T-B, T2-B2),
+  on_color(B2, T2, K),
+  on_king(B2, K),
+  (
+    capture_ray(D-K, B2, _) ;
+    capture_pawn(D-K, B2, _)
+  ).
+
+
+
+
+
+backrank_king(T-B, K) :- 
+  opposite(T, T2),
+  on_king_forward(T2, K, KFs),
+  maplist(on_piece(B, T2-p), KFs).
+
+
+
+on_piece(B, Color-Role, P) :- member(Color-Role-P, B).
+
+on_king_forward(w, K, KFs) :- findall(Y, king_fwd(K, Y), KFs).
+on_king_forward(b, K, KFs) :- findall(Y, king_bck(K, Y), KFs).
 
 mobile_ray(O-D, B, B2) :- 
 member(Color-Role-O, B),
@@ -284,6 +341,11 @@ print_boardPM(B, P) :-
 
 print_tb(T-B) :- print_board(B), format("~a to play", T).
 
+print_od(O-D) :- print_p(O), format("-"), print_p(D).
+
+print_p(F-R) :- format("~a~a", [F, R]).
+
+
 
 uci(a-X) :- format('~a', X).
 uci(w-r) :- format('R').
@@ -414,3 +476,36 @@ uci_rank('5', 5).
 uci_rank('6', 6).
 uci_rank('7', 7).
 uci_rank('8', 8).
+
+
+
+
+backranks(FMs) :- findall(TB-Ods, 
+  (
+    file_line("data/backrank_20.csv", Line), 
+    csv_fen(Line, Fen, Moves, _, _),
+    fen_board(Fen, TB),
+    moves_od(Moves, Ods)
+  ), 
+  FMs). 
+
+csv_fen(Line, Fen, Moves, Id, Tags) :- split_string(Line, ",", "", [Id, Fen, Moves, _, _, _, _, Tags|_]).
+
+
+tags_with(Tags, Tag) :- split_string(Tags, " ", "", Ls), member(Tag, Ls).
+
+
+% https://stackoverflow.com/a/69006410/3994249
+file_line(File, Line) :-
+  setup_call_cleanup(open(File, read, In),
+  stream_line(In, Line),
+  close(In)).
+
+stream_line(In, Line) :-
+  repeat,
+  (read_line_to_string(In, Line0),
+    Line0 \= end_of_file
+  -> Line0 = Line
+  ; !,
+    fail
+  ).
