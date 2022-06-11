@@ -417,7 +417,7 @@ Note that you can chain multiple drops (also pickups) manually like `drop(P, R, 
 Just a demonstration of `foldl` which will be used in later sections.
 
 
-Finally there are some utility methods to read boards from a FEN notation, for example this is defined in [steps_util.pl](steps_util.pl).
+Finally there are some utility methods to read boards from a FEN notation, for example this is also defined in [steps_util.pl](steps_util.pl).
 
 ```pl
 initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
@@ -426,6 +426,8 @@ initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
 And you can print the starting position like this:
 
 `?- initial_fen(F), fen_board(F, T-B), print_board(B).` , `fen_board(F, T-B)` is a definition where F is a Fen string, T is whose turn it is `w` or `b` , B is the board, which we can print and use.
+Note that we seperated T-B as Turn and Board, there is a definition to print that as a pair like:
+`?- initial_fen(F), fen_board(F, T-B), print_tb(T-B).`, it will tell you whose turn it is as well as print the board.
 
 Or you can just give it any other fen by replacing the variables.
 

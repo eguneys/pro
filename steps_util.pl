@@ -1,5 +1,7 @@
 % Prolog
 
+print_tb(T-B) :- print_board(B), format("~a to play", T).
+
 uci(a-X) :- format('~a', X).
 uci(w-r) :- format('R').
 uci(w-q) :- format('Q').
