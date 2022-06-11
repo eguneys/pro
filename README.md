@@ -416,4 +416,26 @@ Note that you can chain multiple drops (also pickups) manually like `drop(P, R, 
 
 Just a demonstration of `foldl` which will be used in later sections.
 
+
+Finally there are some utility methods to read boards from a FEN notation, for example this is defined in [steps_util.pl](steps_util.pl).
+
+```pl
+initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
+```
+
+And you can print the starting position like this:
+
+`?- initial_fen(F), fen_board(F, T-B), print_board(B).` , `fen_board(F, T-B)` is a definition where F is a Fen string, T is whose turn it is `w` or `b` , B is the board, which we can print and use.
+
+Or you can just give it any other fen by replacing the variables.
+
+There is also some other fens defined like:
+
+```pl
+kiwipete("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ").
+pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
+```
+
+Which are famous positions for perft tests.
+
 ### Section 6 - 
