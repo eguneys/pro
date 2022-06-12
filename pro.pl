@@ -51,15 +51,36 @@ check_br_one(TB2-ODs) :-
   backranks([TB-[OD|ODs]|_]),
   mobile_situation(OD, TB, TB2).
 
-check_brs_tbod(TB-[OD|_], TB4) :-
+check_brs_tbod(TB-[OD|ODs], TB4) :-
   mobile_situation(OD, TB, TB2),
-  backrank_mate(TB2, _, TB4).
+  findall(F_ODs, backrank_mate_all(TB2, F_ODs, TB4), Ls),
+  member(ODs, Ls),
+  length(Ls, C).
 
 
-hello:- backranks(Ls), member(TBOD, Ls), check_brs_tbod(TBOD, B4), print_tb(B4).
+cc(X) :- check_brs_tbod(X, _).
+
+hello(Ins, Outs):- backranks(Ls), partition(cc, Ls, Ins, Outs).
+
+outs :- hello(_, Outs), member(TB-Ods, Outs), print_tb(TB), maplist(print_od, Ods).
+
+backrank_mate_all(TB, Ls, TB2) :- 
+  backrank_mate_direct(TB, Ls, TB2);
+  backrank_mate_interposed(TB, Ls, TB2);
+  backrank_mate_recapture(TB, Ls, TB2);
+  backrank_mate_recapture_interpose(TB, Ls, TB2).
 
 
-backrank_mate(T-B, O-D, T4-B4) :-
+backrank_mate_direct(T-B, [O-D], T2-B2) :-
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  \+ (interpose_check(T2-B2, D-K, OI-_, _),
+  \+ OI = K).
+
+backrank_mate_interposed(T-B, [O-D,OI-DI,D-DI], T4-B4) :-
   opposite(T, T2),
   on_color(B, T2, K),
   on_king(B, K),
@@ -68,6 +89,26 @@ backrank_mate(T-B, O-D, T4-B4) :-
   interpose_check(T2-B2, D-K, OI-DI, T3-B3),
   \+ OI = K,
   mobile_situation(D-DI, T3-B3, T4-B4).
+
+
+backrank_mate_recapture(T-B, [O-D, OC-D, ORC-D], T4-B4) :-
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  mobile_situation(OC-D, T2-B2, T3-B3),
+  mobile_situation(ORC-D, T3-B3, T4-B4).
+
+
+backrank_mate_recapture_interpose(T-B, [O-D, OC-D|Ods], T4-B4) :-
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  mobile_situation(OC-D, T2-B2, T3-B3),
+  backrank_mate_interposed(T3-B3, Ods, T4-B4).
 
 
 interpose_check(T-B, O-D, OI-DI, T2-B2) :-
@@ -483,6 +524,7 @@ uci_rank('8', 8).
 backranks(FMs) :- findall(TB-Ods, 
   (
     file_line("data/backrank_20.csv", Line), 
+    %file_line("data/one_1.csv", Line), 
     csv_fen(Line, Fen, Moves, _, _),
     fen_board(Fen, TB),
     moves_od(Moves, Ods)
