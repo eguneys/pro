@@ -1,5 +1,3 @@
-
-
 mobile_situation(O-D, T-B, T2-B2) :-
   on_color(B, T, O),
   (
@@ -16,10 +14,10 @@ mobile_or_capture(O-D, B-B2) :-
   capture_ray(O-D, B, B2) ;
   capture_pawn(O-D, B, B2).
 
-run(B, OD, Ls) :- foldl(mobile_situation, OD, w-B, Ls).
+run(TB, OD, Ls) :- foldl(mobile_situation, OD, TB, Ls).
 
 
-run_to_depth(F, D, C) :- length(OD, D), fen_board(F, B), findall(Ls, run(B, OD, Ls), Lss), length(Lss, C).
+run_to_depth(F, D, C) :- length(OD, D), fen_board(F, TB), findall(Ls, run(TB, OD, Ls), Lss), length(Lss, C).
 
 
 r_run(B, OD, Ls) :- foldl(r_check, OD, w-B, Ls).
