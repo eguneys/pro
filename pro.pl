@@ -522,8 +522,8 @@ uci_rank('8', 8).
 backranks(FMs) :- findall(TB-Ods, 
   (
     file_line("data/backrank_20.csv", Line), 
-    %file_line("data/one_1.csv", Line), 
-    csv_fen(Line, Fen, Moves, _, _),
+    csv_fen(Line, Fen, Moves, _, TagsS),
+    tags_with(TagsS, backRankMate),
     fen_board(Fen, TB),
     moves_od(Moves, Ods)
   ), 
@@ -532,7 +532,7 @@ backranks(FMs) :- findall(TB-Ods,
 csv_fen(Line, Fen, Moves, Id, Tags) :- split_string(Line, ",", "", [Id, Fen, Moves, _, _, _, _, Tags|_]).
 
 
-tags_with(Tags, Tag) :- split_string(Tags, " ", "", Ls), member(Tag, Ls).
+tags_with(Tags, Tag) :- split_string(Tags, " ", "", Ls), maplist(atom_string, Atoms, Ls), member(Tag, Atoms).
 
 
 % https://stackoverflow.com/a/69006410/3994249
