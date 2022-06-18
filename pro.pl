@@ -62,6 +62,10 @@ hello(Ins, Outs):- backranks(Ls), partition(cc, Ls, Ins, Outs).
 
 outs :- hello(_, Outs), member(TB-Ods, Outs), print_tb(TB), maplist(print_od, Ods).
 
+print_tbod(TB-Ods) :- print_tb(TB), maplist(print_od, Ods).
+
+print_puzzles(X) :- puzzles(X, Fms), member(Y, Fms), print_tbod(Y).
+
 backrank_mate_all(TB, Ls, TB2) :- 
   backrank_mate_direct(TB, Ls, TB2);
   backrank_mate_interposed(TB, Ls, TB2);
@@ -107,6 +111,7 @@ backrank_mate_recapture_interpose(T-B, [O-D, OC-D|Ods], T4-B4) :-
   check_king(T-B, K, O-D, T2-B2),
   mobile_situation(OC-D, T2-B2, T3-B3),
   backrank_mate_interposed(T3-B3, Ods, T4-B4).
+
 
 
 interpose_check(T-B, O-D, OI-DI, T2-B2) :-
@@ -519,11 +524,14 @@ uci_rank('8', 8).
 
 
 
-backranks(FMs) :- findall(TB-Ods, 
+backranks(FMs) :- puzzles(backRankMate, FMs).
+  
+  
+puzzles(X, FMs) :-  findall(TB-Ods, 
   (
-    file_line("data/backrank_20.csv", Line), 
+    file_line("data/athousand_sorted.csv", Line), 
     csv_fen(Line, Fen, Moves, _, TagsS),
-    tags_with(TagsS, backRankMate),
+    tags_with(TagsS, X),
     fen_board(Fen, TB),
     moves_od(Moves, Ods)
   ), 
