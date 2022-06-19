@@ -34,6 +34,18 @@ role(n).
 role(r).
 role(p).
 
+
+white_base(_-1).
+black_base(_-8).
+white_home(_-2).
+white_home1(_-3).
+white_home2(_-4).
+black_home(_-7).
+black_home1(_-6).
+black_home2(_-5).
+
+
+
 piece(Color-Role) :- color(Color), role(Role). 
 piese(Piece-Pos) :- piece(Piece), pos(Pos).
 
@@ -46,19 +58,22 @@ board([X,Y|Rest]) :- board([X|Rest]), board([Y|Rest]), board([X,Y]).
 drop(P, B, [P|B]) :- board([P|B]).
 pickup(P, B, B2) :- drop(P, B2, B).
 
+% https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600
 on(T, B, P) :- memberd_t(P, B, T).
 
-on_color(B, Color, P, T) :- on(T, Color-_-P, B).
-on_king(B, P, T) :- on(T, _-k-P, B).
+on_color(T, B, Color, P) :- on(T, B, Color-_-P).
+on_king(T, B, P) :- on(T, B, _-k-P).
 
-mobile(P, P2, B, BOut) :- pickup(P, B, B2), drop(P2, B2, BOut).
+mobile(P, P2, B, BOut) :- P=Piece-Pos, P2=Piece-Pos2, dif(Pos,Pos2), pickup(P, B, B2), drop(P2, B2, BOut).
+
+capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), dif(Pos, CP), P2=Color-Role-CP, pickup(C, B, B2), pickup(P, B2, B3), drop(P2, B3, BOut).
 
 opposite(w,b).
 opposite(b,w).
 
 
 mobile_situation(O-D, T-B, T2-B2) :-
- on_color(B, T, O),
+ on_color(true, B, T, O),
  (
 	 mobile_ray(O-D, B, B2)
  ),
@@ -69,7 +84,13 @@ mobile_ray(O-D, B, B2) :-
  mobile(Color-Role-O, Color-Role-D, B, B2),
  ray_route(Role-O, D, Is),
  maplist(on(false, B), Is),
- member(Color-Role-O, B).
+ on(true, B, Color-Role-O).
+
+mobile_pawn(O-D, B, B2) :-
+  mobile(Color-p-O, Color-p-D, B, B2),
+  on(true, B, Color-p-O),
+  pawn_push(Color-O, D, Is).
+  %maplist(on(false, B), Is).
 
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
 ray_route(q-P, P2, Is) :- queen(P, P2, Is).
