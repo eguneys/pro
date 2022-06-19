@@ -1,19 +1,26 @@
-
+:- table consumes/1.
 
 split(Ls, N, A, B) :- append(A, B, Ls), length(A, N).
 
 
 consume(_, [], []).
-consume(TB, ODs, [Lss|TRest]):-
-  split(ODs, N, ODs2, ODsRest),
-  \+ N = 0,
-  consumes(Ls), 
+consume(TB, ODs, Lss):-
+  findall(ODs2-ODsRest, (split(ODs, N, ODs2, ODsRest), \+ N = 0), ODss),
+  maplist(consume_one(TB), ODss, Lss).
+
+consume_one(TB, ODs2-ODsRest, [Lss|LsRest]) :- 
+  consumes(Ls),
   findall([Id, TB, ODs2, TB2], (member(F, Ls), call(F, Id, TB, ODs2, TB2)), Lss),
-  member([Id, TB, ODs2, TB2], Lss),
-  consume(TB2, ODsRest, TRest).
+  maplist(consume_ds(ODsRest), Lss, LssTB, LssOd),
+  maplist(consume, LssTB, LssOd, LsRest).
 
-consumes([consume_one_any, backrank_check_interpose]).
+consume_ds(ODsRest, [Id, TB, ODs2, TB2], TB2, ODsRest).
 
+consumes([backrank_check_interpose, consume_one_any]).
+
+
+search([any| Xs], Xs).
+search([Ls|Rest], Ys):- search(Ls, Ys); search(Rest, Ys).
 
 consume_one_any(any, TB, [Od], TB2) :- mobile_situation(Od, TB, TB2).
 backrank_check_interpose(bci, T-B, [O-D,OI-DI,D-DI], T3-B3) :-
