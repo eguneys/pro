@@ -1,4 +1,21 @@
-:- table consumes/1.
+
+one_any(TB, TB2) --> [Od], {
+  mobile_situation(Od, TB, TB2)
+}.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 split(Ls, N, A, B) :- append(A, B, Ls), length(A, N).
 
@@ -14,9 +31,9 @@ consume_one(TB, ODs2-ODsRest, [Lss|LsRest]) :-
   maplist(consume_ds(ODsRest), Lss, LssTB, LssOd),
   maplist(consume, LssTB, LssOd, LsRest).
 
-consume_ds(ODsRest, [Id, TB, ODs2, TB2], TB2, ODsRest).
+consume_ds(ODsRest, [_, _, _, TB2], TB2, ODsRest).
 
-consumes([backrank_check_interpose, consume_one_any]).
+consumes([consume_one_any, backrank_check_interpose]).
 
 
 search([any| Xs], Xs).
@@ -67,10 +84,10 @@ backrank_king(T-B, K) :-
 mobile_situation(O-D, T-B, T2-B2) :-
   on_color(B, T, O),
   (
-    mobile_ray(O-D, B, B2) ; 
-    mobile_pawn(O-D, B, B2) ;
-    capture_ray(O-D, B, B2) ;
-    capture_pawn(O-D, B, B2)
+    mobile_ray(O-D, B, B2)  
+%    mobile_pawn(O-D, B, B2) ;
+%    capture_ray(O-D, B, B2)
+%    capture_pawn(O-D, B, B2)
   ),
   opposite(T,T2).
 
@@ -236,7 +253,10 @@ on(B, P) :- member(_-_-P, B).
 on_color(B, Color, P) :- member(Color-_-P, B).
 on_king(B, P) :- member(_-k-P, B).
 
-mobile(P, P2, B, BOut) :- \+ same_pos(P, P2), pickup(P, B, B2), drop(P2, B2, BOut).
+mobile(P, P2, B, BOut) :- 
+\+ same_pos(P, P2), 
+pickup(P, B, B2), 
+drop(P2, B2, BOut).
 
 
 capture(P, C, B, BOut) :- \+ same_color(P, C), pickup(C, B, B2), pickup(P, B2, B3), take_pos(P, C, P2), drop(P2, B3, BOut).
