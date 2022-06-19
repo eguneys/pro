@@ -1,3 +1,62 @@
+
+
+split(Ls, N, A, B) :- append(A, B, Ls), length(A, N).
+
+
+consume(_, [], []).
+consume(TB, ODs, [Lss|TRest]):-
+  split(ODs, N, ODs2, ODsRest),
+  \+ N = 0,
+  consumes(Ls), 
+  findall([Id, TB, ODs2, TB2], (member(F, Ls), call(F, Id, TB, ODs2, TB2)), Lss),
+  member([Id, TB, ODs2, TB2], Lss),
+  consume(TB2, ODsRest, TRest).
+
+consumes([consume_one_any, backrank_check_interpose]).
+
+
+consume_one_any(any, TB, [Od], TB2) :- mobile_situation(Od, TB, TB2).
+backrank_check_interpose(bci, T-B, [O-D,OI-DI,D-DI], T3-B3) :-
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  interpose_check(T2-B2, D-K, OI-DI, T3-B3),
+  \+ OI = K.
+
+
+
+
+
+interpose_check(T-B, O-D, OI-DI, T2-B2) :-
+  mobile_or_capture(O-D, B-_),
+  mobile_situation(OI-DI, T-B, T2-B2),
+  \+ mobile_situation(O-D, T2-B2, _).
+
+check_king(T-B, K, O-D, T2-B2) :- 
+  mobile_situation(O-D, T-B, T2-B2),
+  on_color(B2, T2, K),
+  on_king(B2, K),
+  (
+    capture_ray(D-K, B2, _) ;
+    capture_pawn(D-K, B2, _)
+  ).
+
+
+
+
+
+backrank_king(T-B, K) :- 
+  opposite(T, T2),
+  on_king_forward(T2, K, KFs),
+  maplist(on_piece(B, T2-p), KFs).
+
+
+
+
+
+
 mobile_situation(O-D, T-B, T2-B2) :-
   on_color(B, T, O),
   (
@@ -49,7 +108,7 @@ check_br_one(TB2-ODs) :-
   backranks([TB-[OD|ODs]|_]),
   mobile_situation(OD, TB, TB2).
 
-check_brs_tbod(TB-[OD|ODs], TB4) :-
+check_brs_tbod(TB-[OD|ODs], TB4, C) :-
   mobile_situation(OD, TB, TB2),
   findall(F_ODs, backrank_mate_all(TB2, F_ODs, TB4), Ls),
   member(ODs, Ls),
@@ -64,7 +123,7 @@ outs :- hello(_, Outs), member(TB-Ods, Outs), print_tb(TB), maplist(print_od, Od
 
 print_tbod(TB-Ods) :- print_tb(TB), maplist(print_od, Ods).
 
-print_puzzles(X) :- puzzles(X, Fms), member(Y, Fms), print_tbod(Y).
+print_puzzles(X, Y) :- puzzles(X, Fms), member(Y, Fms), print_tbod(Y).
 
 backrank_mate_all(TB, Ls, TB2) :- 
   backrank_mate_direct(TB, Ls, TB2);
@@ -112,30 +171,6 @@ backrank_mate_recapture_interpose(T-B, [O-D, OC-D|Ods], T4-B4) :-
   mobile_situation(OC-D, T2-B2, T3-B3),
   backrank_mate_interposed(T3-B3, Ods, T4-B4).
 
-
-
-interpose_check(T-B, O-D, OI-DI, T2-B2) :-
-  mobile_or_capture(O-D, B-_),
-  mobile_situation(OI-DI, T-B, T2-B2),
-  \+ mobile_situation(O-D, T2-B2, _).
-
-check_king(T-B, K, O-D, T2-B2) :- 
-  mobile_situation(O-D, T-B, T2-B2),
-  on_color(B2, T2, K),
-  on_king(B2, K),
-  (
-    capture_ray(D-K, B2, _) ;
-    capture_pawn(D-K, B2, _)
-  ).
-
-
-
-
-
-backrank_king(T-B, K) :- 
-  opposite(T, T2),
-  on_king_forward(T2, K, KFs),
-  maplist(on_piece(B, T2-p), KFs).
 
 
 
