@@ -1,11 +1,13 @@
 :- use_module(library(reif)).
 
 
+seq_any(TB, TB2, Ods) --> one_any(TB, TB2, Ods).
+seq_any(TB, TB3, [Od|Ods]) --> one_any(TB, TB2, [Od]), seq_any(TB2, TB3, Ods).
 
-one_any(TB, TB2, Od) --> [Od], { mobile_situation(Od, TB, TB2) }.
+one_any(TB, TB2, [Od]) --> [Od], { mobile_situation(Od, TB, TB2) }.
 backrank_check_interpose(T-B, T3-B3, [O-D, OI-DI,D-DI]) --> [O-D, OI-DI, D-DI], {
   opposite(T, T2),
-  on_color(B, T2, K),
+  on_color(T2, B, K),
   on_king(B, K),
   backrank_king(T-B, K),
   check_king(T-B, K, O-D, T2-B2),
@@ -120,9 +122,10 @@ opposite(b,w).
 
 
 mobile_situation(O-D, T-B, T2-B2) :-
- on_color(true, B, T, O),
+ on_color(T, B, O),
  (
-   mobile_ray(_, O-D, B, B2)
+   mobile_ray(_, O-D, B, B2);
+   mobile_pawn(O-D, B, B2)
  ),
  opposite(T, T2).
 
