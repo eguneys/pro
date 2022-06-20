@@ -98,8 +98,18 @@ out(P, [X|Xs], [X|Ys]) :- dif(P, X), out(P, Xs, Ys).
 % https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600
 on(T, B, P) :- memberd_t(P, B, T).
 
-on_color(T, B, Color, P) :- on(T, B, Color-_-P).
-on_king(T, B, P) :- on(T, B, _-k-P).
+on_pos(true, B, Pos) :- on(true, B, _-_-Pos).
+on_pos(false, B, Pos) :- in(w-r-Pos, B, _).
+
+
+on_color(Color, B, Pos) :- on(true, B, Color-_-Pos).
+on_color(false, B, Pos) :- on_pos(false, B, Pos).
+
+on_role(Role, B, Pos) :- on(true, B, _-Role-Pos).
+on_role(false, B, Pos) :- on_pos(false, B, Pos).
+
+on_king(B, P) :- on_role(k, B, P).
+
 
 mobile(P, P2, B, BOut) :- P=Piece-Pos, P2=Piece-Pos2, dif(Pos,Pos2), out(P, B, B2), in(P2, B2, BOut).
 
@@ -118,14 +128,14 @@ mobile_situation(O-D, T-B, T2-B2) :-
 
 
 mobile_ray(Color-Role, O-D, B, B2) :-
+ on(true, B, Color-Role-O),
  ray_route(Role-O, D, Is),
- mobile(Color-Role-O, Color-Role-D, B, B2),
- maplist(on(false, B), Is),
- on(true, B, Color-Role-O).
+ maplist(on_pos(false, B), Is),
+ mobile(Color-Role-O, Color-Role-D, B, B2).
 
 mobile_pawn(O-D, B, B2) :-
   pawn_push(Color-O, D, Is),
-  maplist(on(false, B), Is),
+  maplist(on_pos(false, B), Is),
   on(true, B, Color-p-O),
   mobile(Color-p-O, Color-p-D, B, B2).
 
@@ -316,7 +326,8 @@ fen_board(Fen, T-B) :- split_string(Fen, " ", "", [Pieses, Turn, _, _ |_]),
    split_string(Pieses, "/", "", RRanks),
    maplist(string_chars, RRanks, Ranks),
  foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
- foldl(append, BB, [], B).
+ foldl(append, BB, [], BBB),
+ foldl(in, BBB, [], B).
 
 
 
