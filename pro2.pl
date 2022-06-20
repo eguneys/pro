@@ -1,5 +1,4 @@
 :- use_module(library(reif)).
-:- table board/1.
 
 
 file(a).
@@ -52,8 +51,8 @@ piese(Piece-Pos) :- piece(Piece), pos(Pos).
 board([]).
 board([P]) :- piese(P).
 board([P-Pos,P2-Pos2]) :- piece(P), piece(P2), pos(Pos), pos(Pos2), dif(Pos, Pos2).
-board([X,Y|Rest]) :- board([X|Rest]), board([Y|Rest]), board([X,Y]).
-
+board([X,Y,C|Rest]) :- board([X|Rest]), board([Y|Rest]), board([C|Rest]), board([X,Y]),
+board([X,C]), board([Y,C]).
 
 drop(P, B, [P|B]) :- board([P|B]).
 pickup(P, B, B2) :- drop(P, B2, B).
@@ -88,9 +87,9 @@ mobile_ray(O-D, B, B2) :-
 
 mobile_pawn(O-D, B, B2) :-
   mobile(Color-p-O, Color-p-D, B, B2),
-  on(true, B, Color-p-O),
-  pawn_push(Color-O, D, Is).
-  %maplist(on(false, B), Is).
+  pawn_push(Color-O, D, Is),
+  maplist(on(false, B), Is),
+  on(true, B, Color-p-O).
 
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
 ray_route(q-P, P2, Is) :- queen(P, P2, Is).
@@ -163,10 +162,10 @@ zip_pos([], [], []).
 zip_pos([X|Xs], [Y|Ys], [X-Y|Rest]) :- zip_pos(Xs, Ys, Rest).
 
 % https://stackoverflow.com/questions/67946585/using-maplist-with-a-lambda-that-does-not-have-a-body
-forward(X-Y,X-Y_, N) :- upper(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
-backward(X-Y,X-Y_, N) :- downer(Y-Y_, M), findall(X-Y__, member(Y__, M), N).
-queen_side(X-Y,X_-Y, N) :- lefter(X-X_, M), findall(X__-Y, member(X__, M), N).
-king_side(X-Y,X_-Y, N) :- righter(X-X_, M), findall(X__-Y, member(X__, M), N).
+forward(X-Y,X-Y_, N) :- upper(Y-Y_, M), findall(X-Y__, memberd_t(Y__, M, true), N).
+backward(X-Y,X-Y_, N) :- downer(Y-Y_, M), findall(X-Y__, memberd_t(Y__, M, true), N).
+queen_side(X-Y,X_-Y, N) :- lefter(X-X_, M), findall(X__-Y, memberd_t(X__, M, true), N).
+king_side(X-Y,X_-Y, N) :- righter(X-X_, M), findall(X__-Y, memberd_t(X__, M, true), N).
 
 fwd_que(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), lefter(X-X_, MX), zip_pos(MX, MY, N).
 fwd_kng(X-Y, X_-Y_, N) :- upper(Y-Y_, MY), righter(X-X_, MX), zip_pos(MX, MY, N).
@@ -208,13 +207,15 @@ rook(X, Y, N) :- forward(X, Y, N); backward(X, Y, N); queen_side(X, Y, N); king_
 king(X, Y) :- king_fwd(X, Y); king_bck(X, Y); king_lat(X, Y).
 queen(X, Y, N) :- bishop(X, Y, N); rook(X, Y, N).
 
-white_push(X, Y, N) :- \+ white_base(X), (white_home(X), fwd2(X, Y, N); forward(X, Y, [])).
-white_capture(X, Y) :- \+ white_base(X), (fwd_kng(X, Y, []); fwd_que(X, Y, [])).
+white_push(X, Y, N) :- dif(WB, X), white_base(WB), white_home(X), fwd2(X, Y, N). 
+white_push(X, Y, []) :- dif(WB, X), white_base(WB), forward(X, Y, []).
+white_capture(X, Y) :- dif(WB, X), white_base(WB), (fwd_kng(X, Y, []); fwd_que(X, Y, [])).
 white_en_passant(X, Y, C) :- black_home2(X), white_capture(X, Y), backward(Y, C, []).
 white_promote(X) :- black_home(X).
 
-black_push(X, Y, N) :- \+ black_base(X), (black_home(X), bck2(X, Y, N); backward(X, Y, [])).
-black_capture(X, Y) :- \+ black_base(X), (bck_kng(X, Y, []); bck_que(X, Y, [])).
+black_push(X, Y, N) :- dif(BB, X), black_base(BB), black_home(X), bck2(X, Y, N).
+black_push(X, Y, []) :- dif(BB, X), black_base(BB), backward(X, Y, []).
+black_capture(X, Y) :- dif(BB, X), black_base(BB), (bck_kng(X, Y, []); bck_que(X, Y, [])).
 black_en_passant(X, Y, C) :- white_home2(X), black_capture(X, Y), forward(Y, C, []).
 black_promote(X) :- white_home(X).
 

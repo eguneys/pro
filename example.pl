@@ -1,44 +1,32 @@
-backrank_check_interpose(TB, TB2) -->
-  [O-D], {
-    opposite(TB, TB2)
-  }.
+% Prolog
+:- use_module(library(reif)).
+
+
+file(a).
+file(b).
+
+
+rank(1).
+rank(2).
 
 
 
+pos(X-Y) :- file(X), rank(Y).
+
+
+color(w).
+
+role(k).
+role(q).
 
 
 
+piece(Color-Role) :- color(Color), role(Role). 
+piese(Piece-Pos) :- piece(Piece), pos(Pos).
 
-
-
-
-
-
-
-
-
-
-split(Ls, N, A, B) :- append(A, B, Ls), length(A, N).
-
-consume([], []).
-consume(ODs, Lss):-
-  findall(ODs2-ODsRest, (split(ODs, N, ODs2, ODsRest), \+ N = 0), ODss),
-  maplist(consume_one, ODss, Lss),
-  length(Lss, C),
-  \+ C = 0.
-
-
-consume_one(ODs2-ODsRest, [Lss|LsRest]) :-
-  consumes(Ls),
-  findall([X, ODs2], (member(F, Ls), call(F, X, ODs2)), Lss),
-  maplist(consume_ds(ODsRest), Lss, LssOd),
-  maplist(consume, LssOd, LsRest).
-
-
-consume_ds(ODsRest, _, ODsRest).
-
-consumes([one, two]).
-
-one(1, [a]).
-two(2, [b]).
+board([]).
+board([P]).
+board([P-Pos,P2-Pos2]) :- dif(Pos, Pos2).
+board([X,Y,C|Rest]) :- board([X|Rest]), board([Y|Rest]), board([C|Rest]), board([X,Y]),
+board([X,C]), board([Y,C]).
 
