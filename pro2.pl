@@ -1,6 +1,31 @@
 :- use_module(library(reif)).
 
 
+
+one_any(TB, TB2, Od) --> [Od], { mobile_situation(Od, TB, TB2) }.
+backrank_check_interpose(T-B, T3-B3, [O-D, OI-DI,D-DI]) --> [O-D, OI-DI, D-DI], {
+  opposite(T, T2),
+  on_color(B, T2, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  interpose_check(T2-B2, D-K, OI-DI, T3-B3),
+  dif(OI, K)
+}.
+
+
+
+interpose_ray(O-D, B, B3, OI-DI) :-
+  dif(O, OI),
+  interpose_ray_route(Role-(O-D), RoleI-OI, DI),
+  mobile_ray(O-D, B, B2),
+  mobile_ray(OI-DI, B2, B3),
+  mobile(Color-Role-O, Color-Role-D, B, B2),
+  mobile(ColorI-RoleI-OI, ColorI-RoleI-DI, B2, B3).
+
+
+
+
 file(a).
 file(b).
 file(c).
@@ -54,7 +79,7 @@ board([P-Pos,P2-Pos2]) :- piece(P), piece(P2), pos(Pos), pos(Pos2), dif(Pos, Pos
 board([X,Y,C|Rest]) :- board([X|Rest]), board([Y|Rest]), board([C|Rest]), board([X,Y]),
 board([X,C]), board([Y,C]).
 
-drop(P, B, [P|B]) :- board([P|B]).
+drop(P, B, B2) :- append([P], B, B2), board(B2).
 pickup(P, B, B2) :- drop(P, B2, B).
 
 % https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600
@@ -80,16 +105,23 @@ mobile_situation(O-D, T-B, T2-B2) :-
 
 
 mobile_ray(O-D, B, B2) :-
- mobile(Color-Role-O, Color-Role-D, B, B2),
  ray_route(Role-O, D, Is),
  maplist(on(false, B), Is),
- on(true, B, Color-Role-O).
+ on(true, B, Color-Role-O),
+ mobile(Color-Role-O, Color-Role-D, B, B2).
 
 mobile_pawn(O-D, B, B2) :-
-  mobile(Color-p-O, Color-p-D, B, B2),
   pawn_push(Color-O, D, Is),
   maplist(on(false, B), Is),
-  on(true, B, Color-p-O).
+  on(true, B, Color-p-O),
+  mobile(Color-p-O, Color-p-D, B, B2).
+
+interpose_ray_route(Role-(O-D), RoleI-OI, DI) :-
+  ray_route(Role-O, D, Is),
+  ray_route(RoleI-OI, DI, _),
+  memberd_t(DI, Is, true).
+
+
 
 ray_route(b-P, P2, Is) :- bishop(P, P2, Is).
 ray_route(q-P, P2, Is) :- queen(P, P2, Is).
@@ -240,6 +272,10 @@ uci(w-b) :- format('B').
 uci(w-p) :- format('P').
 uci(b-Role) :- format('~a', Role).
 
+
+
+print_tbod(TB-Ods) :- print_tb(TB), maplist(print_od, Ods).
+print_tb(T-B) :- print_board(B), format("~a to play", T).
 
 % https://stackoverflow.com/questions/72550199/how-to-sort-and-print-coordinates-of-a-chess-board-with-pieces-in-them/72553353?noredirect=1#comment128164848_72553353
 print_board(Board) :-
