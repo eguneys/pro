@@ -69,18 +69,32 @@ black_home1(_-6).
 black_home2(_-5).
 
 
+bigger(X-Y, X_-Y_) :- upper(Y-Y_, _); Y=Y_, righter(X-X_, _).
+bigger_piese(_-_-P, _-_-P2) :- bigger(P, P2).
+
 
 piece(Color-Role) :- color(Color), role(Role). 
 piese(Piece-Pos) :- piece(Piece), pos(Pos).
 
-board([]).
-board([P]) :- piese(P).
-board([P-Pos,P2-Pos2]) :- piece(P), piece(P2), pos(Pos), pos(Pos2), dif(Pos, Pos2).
-board([X,Y,C|Rest]) :- board([X|Rest]), board([Y|Rest]), board([C|Rest]), board([X,Y]),
-board([X,C]), board([Y,C]).
 
-drop(P, B, B2) :- append([P], B, B2), board(B2).
-pickup(P, B, B2) :- drop(P, B2, B).
+% https://stackoverflow.com/questions/53531536/insert-into-open-ended-list-without-binding-its-tail-variable
+in(P, B, [P]) :- 
+  nonvar(B),
+  B = [].
+in(P, Bs, [P | Bs]) :-
+  var(Bs).
+in(P, B, [N | Zs]) :-
+  nonvar(B),
+  B = [N | Ys],
+  bigger_piese(N, P),
+  in(P, Ys, Zs).
+
+in(P, B, [P, N | Ys]) :-
+  nonvar(B),
+  B = [N | Ys],
+  bigger_piese(P, N).
+
+out(P, B, B2) :- in(P, B2, B).
 
 % https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600
 on(T, B, P) :- memberd_t(P, B, T).
