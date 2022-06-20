@@ -1,20 +1,46 @@
 :- use_module(library(reif)).
 
 
-seq_any(TB, TB2, Ods) --> one_any(TB, TB2, Ods).
-seq_any(TB, TB3, [Od|Ods]) --> one_any(TB, TB2, [Od]), seq_any(TB2, TB3, Ods).
+seq_any(TB, TB2, Ods, [C]) --> combination(C, Ods, TB, TB2).
+seq_any(TB, TB3, Ods, [C|Cs]) --> 
+  { append(OdsH, OdsRest, Ods) },
+  combination(C, OdsH, TB, TB2), 
+  seq_any(TB2, TB3, OdsRest, Cs).
 
-one_any(TB, TB2, [Od]) --> [Od], { mobile_situation(Od, TB, TB2) }.
-backrank_check_interpose(T-B, T3-B3, [O-D, OI-DI,D-DI]) --> [O-D, OI-DI, D-DI], {
-  opposite(T, T2),
-  on_color(T2, B, K),
-  on_king(B, K),
-  backrank_king(T-B, K),
-  check_king(T-B, K, O-D, T2-B2),
-  interpose_check(T2-B2, D-K, OI-DI, T3-B3),
-  dif(OI, K)
+combination(backrank_check_interpose, [O-D, OI-DI,D-DI], T-B, T-B3) --> [O-D, OI-DI, D-DI], {
+*  opposite(T, T2),
+*  on_color(T2, B, K),
+*  on_king(B, K),
+*  backrank_king(T-B, K),
+*  check_king(T-B, K, O-D, T2-B2),
+*  interpose_ray(D-K, B2, B3, OI-DI),
+*  dif(OI, K)
 }.
 
+combination(one_any, [Od], TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
+
+check_king(T-B, K, O-D, T2-B2) :-
+  mobile_situation(O-D, T-B, T2-B2),
+  on_color(T2, B2, K),
+  on_king(B2, K),
+  (
+    capture_ray(D-K, B2, _) ;
+    capture_pawn(D-K, B2, _)
+  ).
+
+
+capture_pawn(O-D, B, B2) :-
+  on(true, B, Color-p-O),
+  pawn_capture(Color-O, D),
+  opposite(Color, C2),
+  capture(Color-Role-O, Color-Role-D, C2-_-D, B, B2).
+
+capture_ray(O-D, B, B2) :-
+  on(true, B, Color-Role-O),
+  ray_route(Role-O, D, Is),
+  maplist(on_pos(false, B), Is),
+  opposite(Color, C2),
+  capture(Color-Role-O, Color-Role-D, C2-_-D, B, B2).
 
 
 interpose_ray(O-D, B, B3, OI-DI) :-
@@ -23,6 +49,18 @@ interpose_ray(O-D, B, B3, OI-DI) :-
   mobile_ray(Piece, O-D, B, B2),
   mobile_ray(PieceI, OI-DI, B2, B3).
 
+
+backrank_king(T-B, K) :-
+  opposite(T, T2),
+  king_forwards(T2, K, KFs),
+  maplist(on_pawn_color(B, T2), KFs).
+
+on_pawn_color(B, Color, P) :- 
+  on_role(p, B, P), 
+  on_color(Color, B, P).
+
+king_forwards(w, K, KFs) :- findall(Y, king_fwd(K, Y), KFs).
+king_forwards(b, K, KFs) :- findall(Y, king_bck(K, Y), KFs).
 
 
 
