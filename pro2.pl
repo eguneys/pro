@@ -17,11 +17,9 @@ backrank_check_interpose(T-B, T3-B3, [O-D, OI-DI,D-DI]) --> [O-D, OI-DI, D-DI], 
 
 interpose_ray(O-D, B, B3, OI-DI) :-
   dif(O, OI),
-  interpose_ray_route(Role-(O-D), RoleI-OI, DI),
-  mobile_ray(O-D, B, B2),
-  mobile_ray(OI-DI, B2, B3),
-  mobile(Color-Role-O, Color-Role-D, B, B2),
-  mobile(ColorI-RoleI-OI, ColorI-RoleI-DI, B2, B3).
+  interpose_ray_route(Piece, O-D, PieceI, OI-DI),
+  mobile_ray(Piece, O-D, B, B2),
+  mobile_ray(PieceI, OI-DI, B2, B3).
 
 
 
@@ -94,7 +92,8 @@ in(P, B, [P, N | Ys]) :-
   B = [N | Ys],
   bigger_piese(P, N).
 
-out(P, B, B2) :- in(P, B2, B).
+out(P, [P|Xs], Xs).
+out(P, [X|Xs], [X|Ys]) :- dif(P, X), out(P, Xs, Ys).
 
 % https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600
 on(T, B, P) :- memberd_t(P, B, T).
@@ -102,9 +101,9 @@ on(T, B, P) :- memberd_t(P, B, T).
 on_color(T, B, Color, P) :- on(T, B, Color-_-P).
 on_king(T, B, P) :- on(T, B, _-k-P).
 
-mobile(P, P2, B, BOut) :- P=Piece-Pos, P2=Piece-Pos2, dif(Pos,Pos2), pickup(P, B, B2), drop(P2, B2, BOut).
+mobile(P, P2, B, BOut) :- P=Piece-Pos, P2=Piece-Pos2, dif(Pos,Pos2), out(P, B, B2), in(P2, B2, BOut).
 
-capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), dif(Pos, CP), P2=Color-Role-CP, pickup(C, B, B2), pickup(P, B2, B3), drop(P2, B3, BOut).
+capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), dif(Pos, CP), P2=Color-Role-CP, out(C, B, B2), out(P, B2, B3), in(P2, B3, BOut).
 
 opposite(w,b).
 opposite(b,w).
@@ -113,16 +112,16 @@ opposite(b,w).
 mobile_situation(O-D, T-B, T2-B2) :-
  on_color(true, B, T, O),
  (
-	 mobile_ray(O-D, B, B2)
+   mobile_ray(_, O-D, B, B2)
  ),
  opposite(T, T2).
 
 
-mobile_ray(O-D, B, B2) :-
+mobile_ray(Color-Role, O-D, B, B2) :-
  ray_route(Role-O, D, Is),
+ mobile(Color-Role-O, Color-Role-D, B, B2),
  maplist(on(false, B), Is),
- on(true, B, Color-Role-O),
- mobile(Color-Role-O, Color-Role-D, B, B2).
+ on(true, B, Color-Role-O).
 
 mobile_pawn(O-D, B, B2) :-
   pawn_push(Color-O, D, Is),
@@ -130,7 +129,7 @@ mobile_pawn(O-D, B, B2) :-
   on(true, B, Color-p-O),
   mobile(Color-p-O, Color-p-D, B, B2).
 
-interpose_ray_route(Role-(O-D), RoleI-OI, DI) :-
+interpose_ray_route(Color-Role, O-D, ColorI-RoleI, OI-DI) :-
   ray_route(Role-O, D, Is),
   ray_route(RoleI-OI, DI, _),
   memberd_t(DI, Is, true).
