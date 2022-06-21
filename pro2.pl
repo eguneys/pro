@@ -1,23 +1,20 @@
 :- use_module(library(reif)).
 
 
-seq_any(TB, TB2, Ods, [C]) --> combination(C, Ods, TB, TB2).
-seq_any(TB, TB3, Ods, [C|Cs]) --> 
-  { append(OdsH, OdsRest, Ods) },
-  combination(C, OdsH, TB, TB2), 
-  seq_any(TB2, TB3, OdsRest, Cs).
+seq_any([C|Cs], TB, TB3) --> combination(C, TB, TB2), seq_any(Cs, TB2, TB3).
+seq_any([], TB, TB) --> [].
 
-combination(backrank_check_interpose, [O-D, OI-DI,D-DI], T-B, T-B3) --> [O-D, OI-DI, D-DI], {
-*  opposite(T, T2),
-*  on_color(T2, B, K),
-*  on_king(B, K),
-*  backrank_king(T-B, K),
-*  check_king(T-B, K, O-D, T2-B2),
-*  interpose_ray(D-K, B2, B3, OI-DI),
-*  dif(OI, K)
+combination(backrank_check_interpose([O-D, OI-DI,D-DI]), T-B, T-B3) --> [O-D, OI-DI, D-DI], {
+  opposite(T, T2),
+  on_color(T2, B, K),
+  on_king(B, K),
+  backrank_king(T-B, K),
+  check_king(T-B, K, O-D, T2-B2),
+  interpose_ray(D-K, B2, B3, OI-DI),
+  dif(OI, K)
 }.
 
-combination(one_any, [Od], TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
+combination(one_any([Od]), TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
 
 check_king(T-B, K, O-D, T2-B2) :-
   mobile_situation(O-D, T-B, T2-B2),
