@@ -1,5 +1,9 @@
 :- use_module(library(reif)).
 
+
+hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, TB2), Ods, Ls), length(Ls, 0), print_tb(TB2).
+
+
 solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).
 
 seq_any([C|Cs], TB, TB3) --> combination(C, TB, TB2), seq_any(Cs, TB2, TB3).
@@ -11,8 +15,8 @@ combination(backrank_check_interpose([O-D,OI-DI,D-DI]), T-B, T-B3) --> [O-D, OI-
   on_king(B, K),
   backrank_king(T-B, K),
   check_king(T-B, K, O-D, T2-B2),
-  interpose_ray(D-K, B2, B3, OI-DI)
-  %dif(OI, K)
+  interpose_ray(D-K, B2, B3, OI-DI),
+  dif(OI, K)
 }.
 
 combination(one_any([Od]), TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
@@ -162,7 +166,9 @@ mobile_situation(O-D, T-B, T2-B2) :-
  on_color(T, B, O),
  (
    mobile_ray(_, O-D, B, B2);
-   mobile_pawn(O-D, B, B2)
+   mobile_pawn(O-D, B, B2);
+   capture_ray(O-D, B, B2) ;
+   capture_pawn(O-D, B, B2)
  ),
  opposite(T, T2).
 
@@ -461,16 +467,10 @@ uci_rank('6', 6).
 uci_rank('7', 7).
 uci_rank('8', 8).
 
-
-
-
-backranks(FMs) :- puzzles(backRankMate, FMs).
-  
-  
-puzzles(X, FMs) :-  findall(TB-Ods, 
+puzzles(X, FMs) :-  findall(Id-TB-Ods, 
   (
     file_line("data/athousand_sorted.csv", Line), 
-    csv_fen(Line, Fen, Moves, _, TagsS),
+    csv_fen(Line, Fen, Moves, Id, TagsS),
     tags_with(TagsS, X),
     fen_board(Fen, TB),
     moves_od(Moves, Ods)
