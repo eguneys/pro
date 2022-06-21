@@ -1,17 +1,18 @@
 :- use_module(library(reif)).
 
+solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).
 
 seq_any([C|Cs], TB, TB3) --> combination(C, TB, TB2), seq_any(Cs, TB2, TB3).
 seq_any([], TB, TB) --> [].
 
-combination(backrank_check_interpose([O-D, OI-DI,D-DI]), T-B, T-B3) --> [O-D, OI-DI, D-DI], {
+combination(backrank_check_interpose([O-D,OI-DI,D-DI]), T-B, T-B3) --> [O-D, OI-DI, D-DI], {
   opposite(T, T2),
   on_color(T2, B, K),
   on_king(B, K),
   backrank_king(T-B, K),
   check_king(T-B, K, O-D, T2-B2),
-  interpose_ray(D-K, B2, B3, OI-DI),
-  dif(OI, K)
+  interpose_ray(D-K, B2, B3, OI-DI)
+  %dif(OI, K)
 }.
 
 combination(one_any([Od]), TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
@@ -40,11 +41,12 @@ capture_ray(O-D, B, B2) :-
   capture(Color-Role-O, Color-Role-D, C2-_-D, B, B2).
 
 
-interpose_ray(O-D, B, B3, OI-DI) :-
+interpose_ray(O-D, B, B2, OI-DI) :-
   dif(O, OI),
-  interpose_ray_route(Piece, O-D, PieceI, OI-DI),
-  mobile_ray(Piece, O-D, B, B2),
-  mobile_ray(PieceI, OI-DI, B2, B3).
+  %mobile_ray(Piece, O-D, B, B2),
+  on(true, B, Piece-O),
+  mobile_ray(PieceI, OI-DI, B, B2),
+  interpose_ray_route(Piece, O-D, PieceI, OI-DI).
 
 
 backrank_king(T-B, K) :-
