@@ -442,7 +442,7 @@ Which are famous positions for perft tests.
 
 ### Section 6 - A Mouse Slip, A Better Approach
 
-<sub> Since I wrote the last section, I've found a better way to move forward, Previous Section (Section 5) became obsolete, but still contains useful information, so I didn't remove it. Though I will use a different file for code [steps2.pl](steps2.pl), and move the previous information there, with a slight change. I will explain the reason for the change in this chapter, and how to move forward. </sub>
+<sub> Previous Section (Section 5) became obsolete, but still contains useful information, so it's not removed. Though we will use different file for code [steps2.pl](steps2.pl), and move the previous information there, with a slight change. This chapter explains the reason behind the change, and how to move forward. </sub>
 
 Let's recap, we had `file(X)` , `rank(Y).` structures, `pos(X).` coordinates, and some facts about how the pieces move. Let's define a few more facts, this is useful later for enumeration.
 
@@ -487,12 +487,12 @@ Or use the utilities defined in [steps_util.pl](steps_util.pl) to read a board f
 
 `?- initial_fen(F), fen_board(F, T-B), print_board(B).`
 
-Note that `fen_board` returns a `T-B` pair, B is the board we can print, T is a color `w or b` whose turn it is. There is `?- initial_fen(F), fen_board(F, TB), print_tb(TB).` which prints T-B pair directly.
+<sub>Note that `fen_board` returns a `T-B` pair, B is the board we can print, T is a color `w or b` whose turn it is. There is `?- initial_fen(F), fen_board(F, TB), print_tb(TB).` which prints T-B pair directly. </sub>
 
 
 Now take a quick look at this SO question [https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600](https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600), and especially the given answer, to get an idea of what we are doing.
 
-<sub> I don't understand the whole gist of the question or the answer, but I have a rogue idea of it has something to do with words like, monotonic pure logical code. Removing duplicate enumerations, etc. </sub>
+<sub> I don't understand the whole gist of the question or the answer, but I have a rogue idea of it has something to do with words like, monotonic pure logical code, removing duplicate enumerations, etc. </sub>
 
 
 `member(X, Ls).` used to give an element `X` of the list `Ls`. But it has some drawbacks, so we will use a different function to test if a piese is on the board.
