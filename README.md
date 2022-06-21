@@ -492,7 +492,7 @@ Note that `fen_board` returns a `T-B` pair, B is the board we can print, T is a 
 
 Now take a quick look at this SO question [https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600](https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600), and especially the given answer, to get an idea of what we are doing.
 
-<sub> I don't understand the whole gist of the question or the answer, but I have a rogue idea of what it does, that is good for our purposes. </sub>
+<sub> I don't understand the whole gist of the question or the answer, but I have a rogue idea of it has something to do with words like, monotonic pure logical code. Removing duplicate enumerations, etc. </sub>
 
 
 `member(X, Ls).` used to give an element `X` of the list `Ls`. But it has some drawbacks, so we will use a different function to test if a piese is on the board.
@@ -549,13 +549,61 @@ bigger_piese(_-_-P, _-_-P2) :- bigger(P, P2).
 
 Let's do some test: 
 ```
-[10]  ?- bigger_piese(w-k-(a-3), b-r-(h-8)).
+?- bigger_piese(w-k-(a-3), b-r-(h-8)).
 true .
 
-[10]  ?- bigger_piese(w-k-(a-3), b-r-(a-1)).
+?- bigger_piese(w-k-(a-3), b-r-(a-1)).
 false.
 
 ```
 
+<sub> The word position, although refers to the arrangement of pieces on a chess board, we use it as a simple coordinate like a-4 is a position. </sub>
+
+We can easily test if a position is occupied on the board with this:
+
+```pl
+on_pos(true, B, Pos) :- on(B, _-_-Pos).
+```
+
+To test this `?- on_pos(true, B, a-4)`. 
+
+Testing if a position is not occupied takes a bit more work, that has something to do with this SO question [https://stackoverflow.com/questions/53531536/insert-into-open-ended-list-without-binding-its-tail-variable](https://stackoverflow.com/questions/53531536/insert-into-open-ended-list-without-binding-its-tail-variable).:
+
+```pl
+on_pos(false, B, Pos) :- in(w-r-Pos, B, _).
+```
+
+A quick detour, `in(Piece, Board, Board2).` , drops a `Piece` to the `Board`, and returns `Board2` . It is adapted from the SO question, and put in [steps2.pl](steps2.pl). You can test it on an empty board like:
+
+```
+?- in(b-r-(h-8), [], B2), in(w-k-(a-4), B2, B3), in(b-r-(c-3), B3, B4).
+B2 = [b-r-(h-8)],
+B3 = [w-k-(a-4), b-r-(h-8)],
+B4 = [b-r-(c-3), w-k-(a-4), b-r-(h-8)] ;
+```
+
+Note that it inserts the pieces in order according to `bigger_piese(X, Y).` we defined earlier, it fails if it cannot insert a piece at a position, because the position is occupied.
+
+And back to `on_pos(false, B, Pos).` we try to insert a white rook at Pos, and if we can, then that means Pos is empty.
+
+Let's enumerate all the empty positions on the initial starting position:
+
+`?- initial_fen(F), fen_board(F, T-B), on_pos(false, B, X).`, Note the `X = _-3 ; X = _-4 ; X = _-5 ; X = _-6 . ` results, `_` meaning all files on ranks 3, 4, 5, and 6.
+
+
+Finally, let's tell how to remove a piese from a board:
+
+```
+
+```
+
+
+`?- initial_fen(F), fen_board(F, T-B), out(w-r-(a-1), B, B2), print_board(B2).`, see the white rook on a-1 is removed. Note that we need to tell the piece on a position or a `piese` to remove from the board.
+
+Or remove all the white pieces from the board:
+`?- initial_fen(F), fen_board(F, T-B), out(w-_-_, B, B2), print_board(B2).`, see it doesn't remove all of them at once, but one by one on each iteration. You can think about how to remove them at once for fun.
+
+
+### Exercises for Section 6
 
 

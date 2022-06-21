@@ -33,12 +33,13 @@ kiwipete("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ").
 pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
 
 
-fen_board(Fen, T-B) :- split_string(Fen, " ", "", [Pieses, Turn, _, _ |_]),
+fen_board_unsorted(Fen, T-B) :- split_string(Fen, " ", "", [Pieses, Turn, _, _ |_]),
    uci_turn(Turn, T),
    split_string(Pieses, "/", "", RRanks),
    maplist(string_chars, RRanks, Ranks),
  foldl(rank_pieses, Ranks, [8,7,6,5,4,3,2,1], [], BB),
  foldl(append, BB, [], B).
+
 
 
 

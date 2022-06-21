@@ -28,6 +28,34 @@ on(B, P) :- memberd_t(P, B, true).
 bigger(X-Y, X_-Y_) :- upper(Y-Y_, _); Y=Y_, righter(X-X_, _).
 bigger_piese(_-_-P, _-_-P2) :- bigger(P, P2).
 
+
+on_pos(true, B, Pos) :- on(B, _-_-Pos).
+on_pos(false, B, Pos) :- in(w-r-Pos, B, _).
+
+
+% https://stackoverflow.com/questions/53531536/insert-into-open-ended-list-without-binding-its-tail-variable
+in(P, B, [P]) :- 
+  nonvar(B),
+  B = [].
+in(P, Bs, [P | Bs]) :-
+  var(Bs).
+in(P, B, [N | Zs]) :-
+  nonvar(B),
+  B = [N | Ys],
+  bigger_piese(N, P),
+  in(P, Ys, Zs).
+
+in(P, B, [P, N | Ys]) :-
+  nonvar(B),
+  B = [N | Ys],
+  bigger_piese(P, N).
+
+
+out(P, [P|Xs], Xs).
+out(P, [X|Xs], [X|Ys]) :- dif(P, X), out(P, Xs, Ys).
+
+
+
 % Section 1-5
 
 file(a).
@@ -183,3 +211,7 @@ black_promote(X) :- white_home(X).
 
 
 
+
+% Utility
+
+fen_board(F, T-B) :- fen_board_unsorted(F, T-UB), foldl(in, UB, [], B).
