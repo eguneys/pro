@@ -440,4 +440,122 @@ pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
 
 Which are famous positions for perft tests.
 
-### Section 6 - 
+### Section 6 - A Mouse Slip, A Better Approach
+
+<sub> Since I wrote the last section, I've found a better way to move forward, Previous Section (Section 5) became obsolete, but still contains useful information, so I didn't remove it. Though I will use a different file for code [steps2.pl](steps2.pl), and move the previous information there, with a slight change. I will explain the reason for the change in this chapter, and how to move forward. </sub>
+
+Let's recap, we had `file(X)` , `rank(Y).` structures, `pos(X).` coordinates, and some facts about how the pieces move. Let's define a few more facts, this is useful later for enumeration.
+
+<sub> These new definitions are available in [steps2.pl](steps2.pl) </sub>
+
+```pl
+color(w).
+color(b).
+
+role(k).
+role(q).
+role(b).
+role(n).
+role(r).
+role(p).
+```
+
+See `?- color(X).` enumerates  w  and  b , namely white and black. And `?- role(X).`  enumerates different pieces like king, queen, bishop, knight, rook and pawn.
+
+
+A Piece is a color and a role.
+
+```pl
+piece(Color-Role) :- color(Color), role(Role). 
+```
+
+Similar to a position, except we pair color and a role. See we can enumerate all the pieces `?- piece(X).` , or `?- piece(w-X).` only white pieces.
+
+If we pair a Piece with a Position, we call that a Piese (informally).
+
+```pl
+piese(Piece-Pos) :- piece(Piece), pos(Pos).
+```
+
+`?- piese(X).` see it enumerates all pieces in every square like `w-k-(a-1) , w-k-(a-2) , ` , etc. Or we can ask specifically for white pawns on second rank: `?- piese(w-p-(X-2)).` , it just enumerates all the files, not very useful; yet.
+
+Now this isn't all different, we put pieses on a list and call that a board, like;
+
+`this_board_is_mine([w-k-(a-4), b-r-(a-5)]).`
+
+Or use the utilities defined in [steps_util.pl](steps_util.pl) to read a board from a fen,
+
+`?- initial_fen(F), fen_board(F, T-B), print_board(B).`
+
+Note that `fen_board` returns a `T-B` pair, B is the board we can print, T is a color `w or b` whose turn it is. There is `?- initial_fen(F), fen_board(F, TB), print_tb(TB).` which prints T-B pair directly.
+
+
+Now take a quick look at this SO question [https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600](https://stackoverflow.com/questions/27358456/prolog-union-for-a-u-b-u-c/27358600#27358600), and especially the given answer, to get an idea of what we are doing.
+
+<sub> I don't understand the whole gist of the question or the answer, but I have a rogue idea of what it does, that is good for our purposes. </sub>
+
+
+`member(X, Ls).` used to give an element `X` of the list `Ls`. But it has some drawbacks, so we will use a different function to test if a piese is on the board.
+
+```pl
+on(B, P) :- memberd_t(P, B, true).
+```
+
+The SO question answers, how to derive this function, also there is a library for that, we will just use that library, so add this at the top of the file:
+
+```pl
+:- use_module(library(reif)).
+```
+
+<sub> You also need to install this package on Prolog repl, to make it available. Try `?- pack_install(reif).` . That should install the package `reif`. </sub>
+
+
+Observe how `memberd_t` behaves:
+
+```repl
+?- memberd_t(1, [1,2,3], true).
+true.
+
+?- memberd_t(1, [1,2,3], false).
+false.
+
+?- memberd_t(4, [1,2,3], false).
+true.
+```
+
+Now we can ask if a piese is on the board:
+
+```
+?- initial_fen(F), fen_board(F, T-B), on(B, w-k-(e-1)).
+```
+
+Or list all the white pieses on the board:
+
+```
+?- initial_fen(F), fen_board(F, T-B), on(B, w-Role-Pos).
+```
+
+Before we move on, let's take a quick exercise, and talk about coordinates. We want to order coordinates from a-1 to h-8, from left to right, and down to up. See if you can come up with this definition below:
+
+```pl
+bigger(X-Y, X_-Y_) :- upper(Y-Y_, _); Y=Y_, righter(X-X_, _).
+```
+
+It tells, in order for a coordinate to be bigger than the other, it's rank needs to be upper, or if their rank is equal, it's file needs to be righter. Pretty logical. Let's expand this definition to pieses too:
+
+```pl
+bigger_piese(_-_-P, _-_-P2) :- bigger(P, P2).
+```
+
+Let's do some test: 
+```
+[10]  ?- bigger_piese(w-k-(a-3), b-r-(h-8)).
+true .
+
+[10]  ?- bigger_piese(w-k-(a-3), b-r-(a-1)).
+false.
+
+```
+
+
+
