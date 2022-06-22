@@ -501,7 +501,7 @@ Now take a quick look at this SO question [https://stackoverflow.com/questions/2
 on(B, P) :- memberd_t(P, B, true).
 ```
 
-The SO question answers, how to derive this function, also there is a library for that, we will just use that library, so add this at the top of the file:
+The SO question answers, how to derive this function, also there is a library for that, we will just use that library, its contents are [here (reif.pl)](https://www.swi-prolog.org/pack/file_details/reif/prolog/reif.pl?show=src). so add this at the top of the file:
 
 ```pl
 :- use_module(library(reif)).
