@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+let { withApp } = require('../lib/app');
+let server = require('http').createServer();
+
+withApp((app, boot) => {
+  let port = process.env.PORT || '3000';
+
+  //app.set('port', port);
+  // app.listen(port, onListening);
+
+  server.on('request', app);
+
+  server.listen(port, onListening);
+  
+  function onListening() {
+    let bind = `port ${port}`;
+    console.log('Listening on ' + bind);
+    boot(server);
+  }
+});
