@@ -1,7 +1,11 @@
 :- use_module(library(reif)).
 
+world(Id, Tag, Theme, Cs) :- puzzles(Tag, Fms), member(Id-TB-_, Fms), 
+Cs=[_, Theme], 
+length(OOds, 5), 
+phrase(solve_puzzle(Cs, TB, _), OOds, _).
 
-hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, TB2), Ods, Ls), length(Ls, 0), print_tb(TB).
+hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0), print_tb(TB).
 
 
 solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).
@@ -48,9 +52,9 @@ capture_ray(O-D, B, B2) :-
 interpose_ray(O-D, B, B2, OI-DI) :-
   dif(O, OI),
   %mobile_ray(Piece, O-D, B, B2),
-  on(B, Piece-O),
-  mobile_ray(PieceI, OI-DI, B, B2),
-  interpose_ray_route(Piece, O-D, PieceI, OI-DI).
+  on(B, _-Role-O),
+  mobile_ray(_-RoleI, OI-DI, B, B2),
+  interpose_ray_route(Role, O-D, RoleI, OI-DI).
 
 
 backrank_king(T-B, K) :-
@@ -185,7 +189,7 @@ mobile_pawn(O-D, B, B2) :-
   on(B, Color-p-O),
   mobile(Color-p-O, Color-p-D, B, B2).
 
-interpose_ray_route(Color-Role, O-D, ColorI-RoleI, OI-DI) :-
+interpose_ray_route(Role, O-D, RoleI, OI-DI) :-
   ray_route(Role-O, D, Is),
   ray_route(RoleI-OI, DI, _),
   memberd_t(DI, Is, true).
