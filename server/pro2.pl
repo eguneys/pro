@@ -1,6 +1,7 @@
 :- module(pro2, [
 role/1,
 hello/2,
+hello_tb/3,
 world/4]).
 
 :- use_module(library(reif)).
@@ -11,6 +12,9 @@ length(OOds, 5),
 phrase(solve_puzzle(Cs, TB, _), OOds, _).
 
 hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0).
+
+
+hello_tb(Id, TB, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0).
 
 
 solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).

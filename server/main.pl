@@ -7,9 +7,10 @@
 :- http_handler(/, home, []).
 :- http_handler('/hello', hello, [method(post)]).
 
-hello_json(Id-Rest, Res) :-
+hello_json(Id-TB-Rest, Res) :-
+  term_string(TB, TbR),
   term_string(Rest, R),
-  Res=res{id: Id, rest: R}.
+  Res=res{id: Id, rest: R, tb: TbR}.
 
 home(_Request) :-
   findall(Id-Res, hello(Id, Res), Ls),
@@ -21,7 +22,7 @@ home(_Request) :-
 hello(Request) :-
   http_parameters(Request,
   [ id(Id, [string, optional(true)]) ]),
-  findall(Id-Res, hello(Id, Res), Ls),
+  findall(Id-TB-Res, hello_tb(Id, TB, Res), Ls),
   maplist(hello_json, Ls, Js),
   Dict=hello{js: Js},
   reply_json_dict(Dict).
