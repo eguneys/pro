@@ -1,8 +1,11 @@
 :- use_module(library(http/http_unix_daemon)).
 :- use_module(library(http/http_json)).
 :- use_module(library(http/http_parameters)).
+:- use_module(library(http/http_cors)).
 
 :- use_module(pro2).
+
+:- set_setting(http:cors, [*]).
 
 :- http_handler(/, home, []).
 :- http_handler('/hello', hello, [method(post)]).
@@ -20,6 +23,7 @@ home(_Request) :-
 
 
 hello(Request) :-
+  cors_enable,
   http_parameters(Request,
   [ id(Id, [string, optional(true)]) ]),
   findall(Id-TB-Res, hello_tb(Id, TB, Res), Ls),
