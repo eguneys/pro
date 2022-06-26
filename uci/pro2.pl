@@ -1,11 +1,20 @@
+:- module(pro2, [
+initial_fen/1,
+fen_board/2,
+print_tb/1
+]).
+
 :- use_module(library(reif)).
 
-world(Id, Tag, Theme, Cs) :- puzzles(Tag, Fms), member(Id-TB-[Od|_], Fms), 
-Cs=[Od, Theme], 
+world(Id, Tag, Theme, Cs) :- puzzles(Tag, Fms), member(Id-TB-_, Fms), 
+Cs=[_, Theme], 
 length(OOds, 5), 
-phrase(solve_puzzle(Cs, TB, _), OOds, _), print_tb(TB).
+phrase(solve_puzzle(Cs, TB, _), OOds, _).
 
-hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0), print_tb(TB).
+hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0).
+
+
+hello_tb(Id, TB, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0).
 
 
 solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).
@@ -473,7 +482,7 @@ uci_rank('8', 8).
 
 puzzles(X, FMs) :-  findall(Id-TB-Ods, 
   (
-    file_line("data/athousand_sorted.csv", Line), 
+    file_line("../data/athousand_sorted.csv", Line), 
     csv_fen(Line, Fen, Moves, Id, TagsS),
     tags_with(TagsS, X),
     fen_board(Fen, TB),
