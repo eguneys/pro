@@ -1,36 +1,34 @@
 :- set_prolog_flag(double_quotes, chars).
+:- use_module(library(reif)).
 
-moves([Move]) --> "move ", alnums(Move).
-moves(Moves) --> "moves ", moves_list(Moves).
+:- dynamic(brek/1).
 
-moves_list([Move|Moves]) --> alnums(Move), " ", moves_list(Moves).
-moves_list([Move]) --> alnums(Move).
+take_user :-
+  assertz(brek(0)),
+  retract(brek(_)),
+  assertz(brek(0)),
+  read_line_to_string(user_input, L),
+  string_chars(L, Ls),
+  (phrase(uci, Ls); phrase(no_match(_), Ls)),
+  brek(B),
+  format('|~a|', B),
+  if_(dif(B, break), take_user, format('bye')).
 
-alnums([C|Cs]) --> alnum(C), alnums(Cs).
-alnums([C]) --> alnum(C).
 
-alnum(C) --> [C].
+uci --> quit; go; position.
 
+quit --> "quit", {
+  format('wtf'),
+  retract(brek(_)),
+  assertz(brek(break))
+}.
 
-state(S), [S] --> [S].
-state(S0, S), [S] --> [S0].
+position --> {
+}.
 
-stuff(A) --> state(s(A0), s(A)), {
-    A is A0 + 1
-  }.
+go --> "go", {
+  format('go fen ')
+}.
 
-hello(A, Ls, B) :- phrase(stuff(B), [s(A)], Ls).
-
-initial_fen(fen).
-next_fen(fen, fen2).
-
-fen(Fen) --> state(s(Fen)), { initial_fen(Fen) }.
-fen2(Fen) --> state(s(Fen0), s(Fen)), { next_fen(Fen0, Fen) }.
-
-world :- 
-read_line_to_string(user_input, Ll),
-atom_string(Ls, Ll),
-((Ls = hello, phrase(fen(Fen), Lq));
-(Ls = world, phrase(fen2(Fen), Lq));
-(Ls = go, format('~a', Fen))),
-world.
+no_match([]) --> [].
+no_match([X|Xs]) --> [X], no_match(Xs).
