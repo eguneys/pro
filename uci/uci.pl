@@ -1,48 +1,46 @@
 #!/usr/bin/env swipl
 
-:- set_prolog_flag(double_quotes, chars).
-
+:- use_module(library(dcg/basics)).
 :- use_module(library(reif)).
 :- use_module(pro2).
 
 
 :- initialization(main, main).
 
-main() :-
-  prompt(_, ''),
-  format("Pro Aid Chess v0.5\n"),
-  initial_fen(Fen),
-  uci_loop(Fen).
-
-uci_loop():-
-  read_line_to_string(user_input, L),
-  string_chars(L, Ls),
-  (phrase(uci(s(Break, Fen)), Ls);
-    (phrase(no_match(s(Break, _)), Ls))),
-  if_(dif(Break, break), uci_loop(), format('bye')).
+main :-
+initial_fen(Fen),
+repl(position(Fen)).
 
 
-go(Fen) --> "go", {
-  fen_board(Fen, TB),
-  print_tb(TB),
-  format("\n")
-}.
-
-uci(Break, Fen) --> (quit, { Break=break });
-(go(Fen);
-  position(Fen)), { Break=go }.
-
-quit --> "quit".
-position(Fen) --> "position ", (start_pos(Fen); custom_fen(Fen)).
-
-custom_fen(Fen) --> "fen ", fen(Fen), { format('here') }.
-start_pos(Fen) --> "startpos ", [Fe], { format('hello~a', Fe), initial_fen(Fen) }.
+repl(Fen0) :-
+  read_line_to_codes(user_input, Line),
+  ( Line == end_of_file
+    -> Input = `quit`
+    ; Input = Line
+  ),
+  phrase(parse(Command), Input), !,
+  eval(Command, Result, Fen0, Fen),
+  format("~w~n", Result),
+  ( Command = quit
+    -> true
+    ; repl(Fen)
+  ).
 
 
-fen([Pieses, Turn, Castles, EnPassant, A, B]) --> [Pieses, Turn, Castles, EnPassant, A, B].
+parse(quit) --> "quit".
+parse(go) --> "go".
+parse(position(Fen)) --> "position ", (start_pos(Fen); custom_fen(Fen)).
+parse(unknown(U)) --> remainder(U).
 
-no_match(go, []) --> [].
-no_match(go, [X|Xs]) --> [X], no_match(go, Xs).
+custom_fen(Fen) --> "fen ", fen(Fen).
+start_pos(Fen) --> "startpos", { initial_fen(Fen) }.
 
-state(S), [S] --> [S].
-state(S0, S), [S] --> [S0].
+fen(Fen) --> string(Pieses), " ", string(Turn), " ", string(Castles), " ", string(EnPassant), " ", string(A), " ", string(B), { format(string(Fen), "~s ~s ~s ~s ~s ~s", [Pieses, Turn, Castles, EnPassant, A, B]) }.
+
+
+eval(quit, "bye", S, S).
+eval(go, R, S, S) :-
+  S = position(Fen),
+  format(string(R), "~w", [Fen]).
+eval(position(Fen), "", _, position(Fen)).
+eval(unknown(_), "", S, S).
