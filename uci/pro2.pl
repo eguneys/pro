@@ -1,7 +1,13 @@
 :- module(pro2, [
 initial_fen/1,
 fen_board/2,
-print_tb/1
+print_tb/1,
+opposite/2,
+on_color/3,
+on_role/3,
+turn_base/2,
+turn_home/2,
+mobile_situation/3
 ]).
 
 :- use_module(library(reif)).
@@ -112,6 +118,10 @@ role(n).
 role(r).
 role(p).
 
+turn_base(w, C) :- white_base(C).
+turn_base(b, C) :- black_base(C).
+turn_home(w, C) :- white_home(C).
+turn_home(b, C) :- black_home(C).
 
 white_base(_-1).
 black_base(_-8).
