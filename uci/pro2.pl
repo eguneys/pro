@@ -7,7 +7,8 @@ on_color/3,
 on_role/3,
 turn_base/2,
 turn_home/2,
-mobile_situation/3
+mobile_situation/3,
+uci_od/2
 ]).
 
 :- use_module(library(reif)).
