@@ -10,6 +10,7 @@
 main :-
 prompt(_, ''),
 format("V Aid Prolog UCI v0.8\n"),
+format("uciok\n"),
 initial_fen(Fen),
 fen_board(Fen, TB),
 repl(position(TB)).
@@ -33,6 +34,7 @@ repl(TB0) :-
 parse(quit) --> "quit".
 parse(print) --> "print".
 parse(go) --> "go".
+parse(isready) --> "isready".
 parse(position(TB)) --> "position ", (start_pos(TB0); custom_fen(TB0)), " moves " , moves(Moves), {
   apply_moves(TB0, Moves, TB)
 }.
@@ -59,6 +61,7 @@ eval(go, R, S, S) :-
   Move=OF-OR-(DF-DR),
   format(string(R), "~w~w~w~w", [OF,OR,DF,DR]).
 
+eval(isready, "readyok", S, S).
 eval(print, "", S, S) :-
  S = position(TB),
  print_tb(TB).
