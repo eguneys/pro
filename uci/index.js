@@ -1,4 +1,9 @@
 const { spawn } = require('child_process')
+const { Engine } = require('node-uci')
+
+
+
+
 
 class Uci {
 
@@ -77,12 +82,39 @@ class Uci {
 
 async function main() {
 
-  let uci = new Uci()
+  const Engine = require('node-uci').Engine
+  const engine = new Engine('/usr/games/stockfish')
 
+  await engine.init()
+  await engine.isready()
+
+  let uci = new Uci()
   await uci.init()
-  await uci.position('startpos', ['e2e4'])
-  let res = await uci.go()
-  console.log(res)
+
+  let engines = [engine, uci]
+  let moves = []
+  while(true) {
+    let _engine = engines[moves.length % engines.length]
+    await _engine.position('startpos', moves)
+    let res = await _engine.go({})
+    let value
+
+    if (typeof res === 'object') {
+      value = res.info[res.info.length - 1].score.value
+      res = res.bestmove
+    }
+    moves.push(res)
+
+    console.log(moves)
+
+    if (value > 100) {
+
+      break
+
+    }
+
+  }
+  console.log('end')
 }
 
 
