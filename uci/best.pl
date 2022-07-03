@@ -26,9 +26,10 @@ best_move(TB, Move) :- phrase(combination(_, TB, _), [Move]).
 
 
 
-
-
-
+blunder(sac([O-D, O2-D]), T-B, T-B3) --> [O-D, O2-D], {
+  mobile_situation(O-D, T-B, T2-B2),
+  mobile_situation(O2-D, T2-B2, T-B3)
+}.
 
 
 

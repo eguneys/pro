@@ -1,3 +1,27 @@
+% Prolog
+
+bc(B, C) --> [B, C], {
+  B = "b",
+  C = "c"
+}.
+
+not_bc(O) --> [O], % ?! bc(O, C).
+
+% ?- phrase(not_bc(O), "bcdefg").
+% false.
+% ?- phrase(not_bc(O), "abcdefg").
+% O = "a".
+% ?- phrase(not_bc(O), "wxcybgz")
+% O = "w".
+% ?- phrase(not_bc(O), "wxybgz") 
+% O = "w".
+
+
+
+
+
+
+% https://stackoverflow.com/questions/54986266/translation-to-dcg-semicontext-not-working-follow-on
 list([]) --> [].
 list([L|Ls]) --> [L], list(Ls).
 
