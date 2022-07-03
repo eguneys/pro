@@ -9,7 +9,6 @@ keep_state(S, I), [state(S)] --> [state(S)], [I].
 end_state(S) --> [state(S)], [].
 
 count_dcg(S, S) -->
-  state(S),
   end_state(S).
 
 /*
@@ -33,6 +32,13 @@ count_dcg(S, S2) -->
     dif(C1, C2)
   },
   count_dcg(S1, S2).
+
+
+count_dcg(S, S1) -->
+  state(S, S1),
+  keep_state(S1, _C),
+  list(R),
+  { R = [state(_)]}.
 
 lookahead(C), [S, C] --> [S, C].
 
