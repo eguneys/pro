@@ -2,6 +2,7 @@ const { spawn } = require('child_process')
 const { Engine } = require('node-uci')
 
 
+const STOCKFISH_PATH = '/usr/games/stockfish'
 
 
 
@@ -25,15 +26,16 @@ class Uci {
     let listener
     let p = new Promise(resolve => {
       listener = data => {
-        let line = data.trim()
-        if (condition?.(line)) {
-          resolve()
-        }
-        lines += line
+        data.trim().split('\n').map(line => {
+          if (condition?.(line)) {
+            resolve()
+          }
+          lines += line
 
-        if (!condition) {
-          resolve()
-        }
+          if (!condition) {
+            resolve()
+          }
+        })
       }
 
       this.child.stdout.on('data', listener)
@@ -83,8 +85,7 @@ class Uci {
 async function main() {
 
   const Engine = require('node-uci').Engine
-  const engine = new Engine('/usr/games/stockfish')
-
+  const engine = new Engine(STOCKFISH_PATH)
   await engine.init()
   await engine.isready()
 
@@ -107,7 +108,7 @@ async function main() {
 
     console.log(moves)
 
-    if (value > 100) {
+    if (value > 200) {
 
       break
 
