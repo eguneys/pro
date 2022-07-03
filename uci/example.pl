@@ -1,34 +1,41 @@
-:- set_prolog_flag(double_quotes, chars).
-:- use_module(library(reif)).
-
-:- dynamic(brek/1).
-
-take_user :-
-  assertz(brek(0)),
-  retract(brek(_)),
-  assertz(brek(0)),
-  read_line_to_string(user_input, L),
-  string_chars(L, Ls),
-  (phrase(uci, Ls); phrase(no_match(_), Ls)),
-  brek(B),
-  format('|~a|', B),
-  if_(dif(B, break), take_user, format('bye')).
+list([]) --> [].
+list([L|Ls]) --> [L], list(Ls).
 
 
-uci --> quit; go; position.
+state(S), [state(S)] --> [state(S)].
+state(S, S2), [state(S2)] --> [state(S)], { S2 = S + 1 }.
 
-quit --> "quit", {
-  format('wtf'),
-  retract(brek(_)),
-  assertz(brek(break))
-}.
+keep_state(S, I), [state(S)] --> [state(S)], [I].
+end_state(S) --> [state(S)], [].
 
-position --> {
-}.
+count_dcg(S, S) -->
+  state(S),
+  end_state(S).
 
-go --> "go", {
-  format('go fen ')
-}.
+/*
+count_dcg(S, S2) -->
+  state(S, S1),
+  keep_state(S1, _),
+  count_dcg(S1, S2).
+*/
 
-no_match([]) --> [].
-no_match([X|Xs]) --> [X], no_match(Xs).
+
+count_dcg(S, S1) -->
+  keep_state(S, C1),
+  lookahead(C1),
+  count_dcg(S, S1).
+
+count_dcg(S, S2) -->
+  state(S, S1),
+  keep_state(S1, C1),
+  lookahead(C2),
+  {
+    dif(C1, C2)
+  },
+  count_dcg(S1, S2).
+
+lookahead(C), [S, C] --> [S, C].
+
+
+count(L, S) :-
+  phrase(count_dcg(0, S), [state(0)|L]).
