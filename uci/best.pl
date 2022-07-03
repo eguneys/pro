@@ -22,7 +22,6 @@ apply_move(TB, Move, TB2) :-
 
 best_move(TB, Move) :- phrase(combination(_, TB, _), [Move]).
 
-
 combination(any([O-D]), T-B, T2-B2) --> [O-D], {
   mobile_situation(O-D, T-B, T2-B2) 
 }.

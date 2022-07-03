@@ -10,6 +10,12 @@ class Uci {
 
   log = ''
 
+  async quit() {
+    this.write('quit')
+
+    return await this.getBufferUntil(line => line === 'bye')
+  }
+
   async init() {
     this.child = spawn(__dirname + '/uci.pl')
     this.child.stdout.setEncoding('utf8')
@@ -84,6 +90,7 @@ class Uci {
 
 async function main() {
 
+  console.log('initing')
   const Engine = require('node-uci').Engine
   const engine = new Engine(STOCKFISH_PATH)
   await engine.init()
@@ -108,14 +115,19 @@ async function main() {
 
     console.log(moves)
 
-    if (value > 200) {
+    if (value > 300) {
 
       break
 
     }
 
   }
-  console.log('end')
+ 
+  console.log('quitting')
+  await Promise.all([
+    engine.quit(),
+    uci.quit()])
+
 }
 
 
