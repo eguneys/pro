@@ -101,19 +101,19 @@ async function main() {
 
   let engines = [engine, uci]
   let moves = []
+  let scores = []
   while(true) {
     let _engine = engines[moves.length % engines.length]
     await _engine.position('startpos', moves)
     let res = await _engine.go({})
-    let value
+    let value = ''
 
     if (typeof res === 'object') {
       value = res.info[res.info.length - 1].score.value
       res = res.bestmove
     }
+    scores.push(value)
     moves.push(res)
-
-    console.log(moves)
 
     if (value > 300) {
 
@@ -123,6 +123,8 @@ async function main() {
 
   }
  
+  console.log(moves.join('\t'))
+  console.log(scores.join('\t'))
   console.log('quitting')
   await Promise.all([
     engine.quit(),

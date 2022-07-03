@@ -26,3 +26,7 @@ combination(any([O-D]), T-B, T2-B2) --> [O-D], {
   mobile_situation(O-D, T-B, T2-B2) 
 }.
 
+
+
+
+
