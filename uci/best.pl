@@ -22,17 +22,15 @@ apply_move(TB, Move, TB2) :-
 
 best_move(TB, Move) :- phrase(combination(_, TB, _), [Move]).
 
-
-
-
-
-blunder(sac([O-D, O2-D]), T-B, T-B3) --> [O-D, O2-D], {
-  mobile_situation(O-D, T-B, T2-B2),
-  mobile_situation(O2-D, T2-B2, T-B3)
+combination(challenge([O-D]), T-B, T2-B2) --> combination(any([O-D]), T-B, T2-B2), {
+ 
 }.
+  
 
-
-
+combination(no_pressure([O-D]), T-B, T2-B2) --> combination(any([O-D]), T-B, T2-B2), {
+  findall(D2, mobile_situation(_-D2, T2-B2, _), D2s),
+  maplist(dif(D), D2s)
+}.
 
 combination(any([O-D]), T-B, T2-B2) --> [O-D], {
   mobile_situation(O-D, T-B, T2-B2) 

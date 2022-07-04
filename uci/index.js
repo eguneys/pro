@@ -102,6 +102,7 @@ async function main() {
   let engines = [engine, uci]
   let moves = []
   let scores = []
+  let i = 0
   while(true) {
     let _engine = engines[moves.length % engines.length]
     await _engine.position('startpos', moves)
@@ -112,10 +113,10 @@ async function main() {
       value = res.info[res.info.length - 1].score.value
       res = res.bestmove
     }
-    scores.push(value)
     moves.push(res)
+    scores.push(value)
 
-    if (value > 300) {
+    if (i++ > 10 || Math.abs(value) > 300) {
 
       break
 
