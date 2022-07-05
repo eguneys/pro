@@ -100,7 +100,7 @@ async function main() {
   await uci.init()
 
   let engines = [engine, uci]
-  let moves = []
+  let moves = ['e2e4']
   let scores = []
   let i = 0
   while(true) {

@@ -1,3 +1,4 @@
+
 :- module(pro2, [
 initial_fen/1,
 fen_board/2,
@@ -13,6 +14,7 @@ mobile_capture/4,
 uci_od/2
 ]).
 
+:- table on/2.
 :- use_module(library(reif)).
 
 world(Id, Tag, Theme, Cs) :- puzzles(Tag, Fms), member(Id-TB-_, Fms), 
@@ -190,7 +192,7 @@ capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), 
 
 short_castle(O-D, T, B, B5) :- 
   short_castled_king_rook_file(KDF-RDF), 
-  turn_base(T, Base), 
+  turn_base(T, _-Base), 
   O=e-Base,
   D=KDF-Base,
   KO=T-k-(O), 
