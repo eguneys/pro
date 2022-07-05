@@ -1,7 +1,3 @@
-:- table mobile_situation/3.
-:- table on/2.
-
-
 :- module(pro2, [
 initial_fen/1,
 fen_board/2,
@@ -139,6 +135,9 @@ black_home(_-7).
 black_home1(_-6).
 black_home2(_-5).
 
+long_castled_king_rook_file(c-d).
+short_castled_king_rook_file(g-f).
+
 
 bigger(X-Y, X_-Y_) :- upper(Y-Y_, _); Y=Y_, righter(X-X_, _).
 bigger_piese(_-_-P, _-_-P2) :- bigger(P, P2).
@@ -188,6 +187,21 @@ mobile(P, P2, B, BOut) :- P=Piece-Pos, P2=Piece-Pos2, dif(Pos,Pos2), out(P, B, B
 
 capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), dif(Pos, CP), P2=Color-Role-CP, out(C, B, B2), out(P, B2, B3), in(P2, B3, BOut).
 
+
+short_castle(O-D, T, B, B5) :- 
+  short_castled_king_rook_file(KDF-RDF), 
+  turn_base(T, Base), 
+  O=e-Base,
+  D=KDF-Base,
+  KO=T-k-(O), 
+  RO=T-r-(h-Base), 
+  KD=T-k-(D), 
+  RD=T-r-(RDF-Base), 
+  out(KO, B, B2), 
+  out(RO, B2, B3), 
+  in(KD, B3, B4), 
+  in(RD, B4, B5).
+
 opposite(w,b).
 opposite(b,w).
 
@@ -205,7 +219,8 @@ mobile_situation(O-D, T-B, T2-B2) :-
    mobile_ray(_, O-D, B, B2);
    mobile_pawn(O-D, B, B2);
    capture_ray(O-D, _, B, B2) ;
-   capture_pawn(O-D, _, B, B2)
+   capture_pawn(O-D, _, B, B2);
+   short_castle(O-D, T, B, B2)
  ),
  opposite(T, T2).
 
@@ -403,6 +418,7 @@ initial_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").
 kiwipete("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - ").
 pos3("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - ").
 
+castles_pos("8/8/8/8/8/8/PPPPPPPP/R3K2R w - - 0 1").
 
 fen_board(Fen, T-B) :- split_string(Fen, " ", "", [Pieses, Turn, _, _ |_]),
    uci_turn(Turn, T),

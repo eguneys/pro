@@ -116,8 +116,8 @@ async function main() {
     moves.push(res)
     scores.push(value)
 
-    console.log(moves)
-    if (i++ > 10 || Math.abs(value) > 300) {
+    console.log(moves.join(' '))
+    if (i++ > 20 || Math.abs(value) > 300) {
 
       break
 
