@@ -1,3 +1,7 @@
+:- table mobile_situation/3.
+:- table on/2.
+
+
 :- module(pro2, [
 initial_fen/1,
 fen_board/2,
@@ -5,9 +9,11 @@ print_tb/1,
 opposite/2,
 on_color/3,
 on_role/3,
+on/2,
 turn_base/2,
 turn_home/2,
 mobile_situation/3,
+mobile_capture/4,
 uci_od/2
 ]).
 
@@ -51,18 +57,18 @@ check_king(T-B, K, O-D, T2-B2) :-
   ).
 
 
-capture_pawn(O-D, B, B2) :-
+capture_pawn(O-D, C2-R2-D, B, B2) :-
   on(B, Color-p-O),
   pawn_capture(Color-O, D),
   opposite(Color, C2),
-  capture(Color-Role-O, Color-Role-D, C2-_-D, B, B2).
+  capture(Color-Role-O, Color-Role-D, C2-R2-D, B, B2).
 
-capture_ray(O-D, B, B2) :-
+capture_ray(O-D, C2-R2-D, B, B2) :-
   on(B, Color-Role-O),
   ray_route(Role-O, D, Is),
   maplist(on_pos(false, B), Is),
   opposite(Color, C2),
-  capture(Color-Role-O, Color-Role-D, C2-_-D, B, B2).
+  capture(Color-Role-O, Color-Role-D, C2-R2-D, B, B2).
 
 
 interpose_ray(O-D, B, B2, OI-DI) :-
@@ -185,14 +191,21 @@ capture(P, P2, C, B, BOut) :- P=Color-Role-Pos, C=C2-_-CP, opposite(Color, C2), 
 opposite(w,b).
 opposite(b,w).
 
+mobile_capture(O-D, C2-R2-D, T-B, T2-B2) :-
+  on_color(T, B, O),
+  (
+    capture_ray(O-D, C2-R2-D, B, B2);
+    capture_pawn(O-D, C2-R2-D, B, B2)
+  ),
+  opposite(T, T2).
 
 mobile_situation(O-D, T-B, T2-B2) :-
  on_color(T, B, O),
  (
    mobile_ray(_, O-D, B, B2);
    mobile_pawn(O-D, B, B2);
-   capture_ray(O-D, B, B2) ;
-   capture_pawn(O-D, B, B2)
+   capture_ray(O-D, _, B, B2) ;
+   capture_pawn(O-D, _, B, B2)
  ),
  opposite(T, T2).
 
