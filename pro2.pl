@@ -1,38 +1,21 @@
 :- use_module(library(reif)).
 
-world(Id, Tag, Theme, Cs) :- puzzles(Tag, Fms), member(Id-TB-[Od|_], Fms), 
-Cs=[Od, Theme], 
-length(OOds, 5), 
-phrase(solve_puzzle(Cs, TB, _), OOds, _), print_tb(TB).
 
-hello(Id, Cs) :- puzzles(backRankMate, Fms), member(Id-TB-Ods, Fms), phrase(solve_puzzle(Cs, TB, _), Ods, Ls), length(Ls, 0), print_tb(TB).
+% r f f2 K
 
 
-solve_puzzle([C|Cs], TB, TB3) --> combination(one_any([C]), TB, TB2), seq_any(Cs, TB2, TB3).
+rff2K(R, F, F2, TB) :-
+  TB=T-B,
+  on(B, T-r-R),
+  iso_situation(R-F, TB, TB2),
+  iso_situation(F-F2, TB2, _TB3).
 
-seq_any([C|Cs], TB, TB3) --> combination(C, TB, TB2), seq_any(Cs, TB2, TB3).
-seq_any([], TB, TB) --> [].
 
-combination(backrank_check_interpose([O-D,OI-DI,D-DI]), T-B, T-B3) --> [O-D, OI-DI, D-DI], {
-  opposite(T, T2),
-  on_color(T2, B, K),
-  on_king(B, K),
-  backrank_king(T-B, K),
-  check_king(T-B, K, O-D, T2-B2),
-  interpose_ray(D-K, B2, B3, OI-DI),
-  dif(OI, K)
-}.
+puzzle_on(TB2) :- 
+  puzzles(_Id, TB, [OD|_Rest]),
+  mobile_situation(OD, TB, TB2).
 
-combination(one_any([Od]), TB, TB2) --> [Od], { mobile_situation(Od, TB, TB2) }.
 
-check_king(T-B, K, O-D, T2-B2) :-
-  mobile_situation(O-D, T-B, T2-B2),
-  on_color(T2, B2, K),
-  on_king(B2, K),
-  (
-    capture_ray(D-K, B2, _) ;
-    capture_pawn(D-K, B2, _)
-  ).
 
 
 capture_pawn(O-D, B, B2) :-
@@ -470,6 +453,15 @@ uci_rank('5', 5).
 uci_rank('6', 6).
 uci_rank('7', 7).
 uci_rank('8', 8).
+
+puzzles(Id, TB, Ods) :-
+  file_line("data/athousand_sorted.csv", Line), 
+  csv_fen(Line, Fen, Moves, Id, _TagsS),
+  fen_board(Fen, TB),
+  moves_od(Moves, Ods).
+
+
+puzzle_list(FMs) :- findall(Id-TB-Ods,(puzzles(Id, TB, Ods)), FMs).
 
 puzzles(X, FMs) :-  findall(Id-TB-Ods, 
   (
